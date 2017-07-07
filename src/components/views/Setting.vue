@@ -99,7 +99,7 @@
   </div>
 </template>
 <script>
-require('moment')
+// require('moment')
 import datepicker from 'vue-date-picker'
 
 export default {
