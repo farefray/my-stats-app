@@ -9,6 +9,9 @@ import store from './store'
 // Import Helpers for filters
 import { domain, count, prettyDate, pluralize } from './filters'
 
+// Handy debugging function for Vue.
+import 'vue-clicky'
+
 // Import Views - Top level
 import AppView from './components/App.vue'
 
@@ -31,8 +34,9 @@ var router = new VueRouter({
 
 // Some middleware to help us ensure the user is authenticated.
 router.beforeEach((to, from, next) => {
-  // window.console.log('Transition', transition)
-  if (to.auth && (to.router.app.$store.state.token === 'null')) {
+  window.console.log(to)
+  window.console.log(from)
+  if (to.meta.auth && (to.router.app.$store.state.token === 'null')) {
     window.console.log('Not authenticated')
     next({
       path: '/login',

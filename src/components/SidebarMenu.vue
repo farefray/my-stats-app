@@ -1,22 +1,27 @@
 <template>
   <ul class="sidebar-menu">
-    <li class="header">TOOLS</li>
+    <li class="header">Main</li>
     <li class="active pageLink" v-on:click="toggleMenu">
       <router-link to="/"><i class="fa fa-desktop"></i>
+        <span class="page">Overview</span>
+      </router-link>
+    </li>
+
+    <li class="header">My Stats</li>
+    <li class="pageLink" v-on:click="toggleMenu">
+      <router-link to="/dashbard"><i class="fa fa-table"></i>
         <span class="page">Dashboard</span>
       </router-link>
     </li>
     <li class="pageLink" v-on:click="toggleMenu">
-      <router-link to="/tables"><i class="fa fa-table"></i>
-        <span class="page">Tables</span>
+      <router-link to="/bets"><i class="fa fa-table"></i>
+        <span class="page">My Bets</span>
       </router-link>
     </li>
-
-    <li class="header">ME</li>
     <li class="pageLink" v-on:click="toggleMenu">
       <router-link to="/tasks">
         <i class="fa fa-tasks"></i>
-        <span class="page">Tasks</span>
+        <span class="page">Something else</span>
       </router-link>
     </li>
     <li class="pageLink" v-on:click="toggleMenu">

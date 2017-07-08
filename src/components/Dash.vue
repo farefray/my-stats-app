@@ -151,7 +151,7 @@
     <!-- Main Footer -->
     <footer class="main-footer">
       <strong>Copyright &copy; {{year}}
-        <a href="javascript:;">CoPilot</a>.</strong> All rights reserved.
+        <a href="javascript:;">BettingStats</a>.</strong> All rights reserved.
     </footer>
   </div>
   <!-- ./wrapper -->
