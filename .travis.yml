@@ -5,3 +5,12 @@ install:
   - 'npm install'
 script:
   - 'npm run build'
+services:
+  - mongodb
+cache:
+  directories:
+  - node_modules
+git:
+  depth: 3
+after_script:
+  - yarn report-coverage
