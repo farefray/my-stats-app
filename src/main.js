@@ -34,10 +34,9 @@ var router = new VueRouter({
 
 // Some middleware to help us ensure the user is authenticated.
 router.beforeEach((to, from, next) => {
-  window.console.log(to)
-  window.console.log(from)
-  if (to.meta.auth && (to.router.app.$store.state.token === 'null')) {
+  if (to.meta.auth && (router.app.$store.state.token === null)) {
     window.console.log('Not authenticated')
+    router.push('/')
     next({
       path: '/login',
       query: { redirect: to.fullPath }

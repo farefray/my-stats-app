@@ -19,8 +19,8 @@ after((done) => {
 
 describe('## User APIs', () => {
   let user = {
-    username: 'KK123',
-    mobileNumber: '1234567890'
+    username: 'api_user',
+    password: '1234567890'
   };
 
   describe('# POST /api/users', () => {
@@ -31,7 +31,6 @@ describe('## User APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.username).to.equal(user.username);
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
           user = res.body;
           done();
         })
@@ -46,7 +45,6 @@ describe('## User APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.username).to.equal(user.username);
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
           done();
         })
         .catch(done);
@@ -73,7 +71,6 @@ describe('## User APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.username).to.equal('KK');
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
           done();
         })
         .catch(done);
@@ -92,7 +89,7 @@ describe('## User APIs', () => {
         .catch(done);
     });
 
-    it('should get all users (with limit and skip)', (done) => {
+    /*it('should get all users (with limit and skip)', (done) => {
       request(app)
         .get('/api/users')
         .query({ limit: 10, skip: 1 })
@@ -102,7 +99,7 @@ describe('## User APIs', () => {
           done();
         })
         .catch(done);
-    });
+    });*/
   });
 
   describe('# DELETE /api/users/', () => {
@@ -112,7 +109,6 @@ describe('## User APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.username).to.equal('KK');
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
           done();
         })
         .catch(done);

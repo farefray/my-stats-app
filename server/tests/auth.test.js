@@ -9,8 +9,8 @@ chai.config.includeStack = true;
 
 describe('## Auth APIs', () => {
   const validUserCredentials = {
-    username: 'react',
-    password: 'express'
+    username: 'test1',
+    password: 'test1'
   };
 
   const invalidUserCredentials = {
@@ -27,7 +27,7 @@ describe('## Auth APIs', () => {
         .send(invalidUserCredentials)
         .expect(httpStatus.UNAUTHORIZED)
         .then((res) => {
-          expect(res.body.message).to.equal('Authentication error');
+          expect(res.body.message).to.equal('Authentication error: Password is wrong');
           done();
         })
         .catch(done);

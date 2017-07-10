@@ -5,7 +5,7 @@
     <section class="sidebar">
 
       <!-- Sidebar user panel (optional) -->
-      <div class="user-panel">
+      <div class="user-panel" v-if="$store.user">
         <div class="pull-left image">
           <img :src="pictureUrl" />
         </div>

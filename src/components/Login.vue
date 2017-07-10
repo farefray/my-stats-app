@@ -1,12 +1,15 @@
 <template>
 <div class="container container-table">
-  <div class="row vertical-10p">
+  <div class="row vertical-5p">
     <div class="container">
-      <img src="/static/img/logo.svg" class="center-block logo">
-      <div class="text-center col-md-4 col-sm-offset-4">
+      <router-link to="/">
+        <img src="/static/img/logo.svg" class="center-block logo">
+      </router-link>
+      <div class="alert alert-success col-md-4 col-sm-offset-4" v-if="registered">You have successfully registered. Now you can login!
+      </div>
+      <div class="text-center col-md-4 col-sm-offset-4 vertical-2p">
         <!-- login form -->
-        <form class="ui form loginForm" @submit.prevent="checkCreds">
-
+        <form class="ui form" @submit.prevent="processAuth">
           <div class="input-group">
             <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
             <input class="form-control" name="username" placeholder="Username" type="text" v-model="username">
@@ -16,7 +19,13 @@
             <span class="input-group-addon"><i class="fa fa-lock"></i></span>
             <input class="form-control" name="password" placeholder="Password" type="password" v-model="password">
           </div>
-          <button type="submit" v-bind:class="'btn btn-primary btn-lg ' + loading">Submit</button>
+          <transition name="fade">
+            <button type="submit" v-bind:class="'btn btn-success ' + loading" v-if="!register">Login</button>
+          </transition>
+          <button v-on:click.stop.prevent="registerClick()" v-bind:class="'btn btn-default ' + loading" v-if="!registered">
+            <template v-if="!register">Register</template>
+            <template v-else>Submit</template>
+          </button>
         </form>
 
         <!-- errors -->
@@ -37,6 +46,8 @@ export default {
   data (router) {
     return {
       section: 'Login',
+      register: false,
+      registered: false, // just registered
       loading: '',
       username: '',
       password: '',
@@ -44,60 +55,75 @@ export default {
     }
   },
   methods: {
-    checkCreds () {
+    registerClick () {
+      if (this.register) {
+        return this.processAuth()
+      }
+
+      this.resetResponse()
+      this.register = true
+    },
+    processAuth () {
       const {
         username,
-        password
+        password,
+        register
       } = this
 
       this.toggleLoading()
       this.resetResponse()
       this.$store.commit('TOGGLE_LOADING')
 
+      var _this = this
       /* Making API call to authenticate a user */
-      api.request('post', '/login', {
+      api.request('post', register ? 'users' : 'auth/login', {
         username,
         password
-      })
-        .then(response => {
-          this.toggleLoading()
+      }).then(response => {
+          _this.toggleLoading()
+          window.console.log(response)
 
           var data = response.data
-          /* Checking if error object was returned from the server */
-          if (data.error) {
-            var errorName = data.error.name
-            if (errorName) {
-              this.response = errorName === 'InvalidCredentialsError'
-                ? 'Username/Password incorrect. Please try again.'
-                : errorName
-            } else {
-              this.response = data.error
-            }
-
+          if (_this.register) {
+            // successfull registration
+            _this.registered = true
+            _this.register = false
             return
           }
 
           /* Setting user in the state and caching record to the localStorage */
-          if (data.user) {
+          if (data.username) {
             var token = 'Bearer ' + data.token
 
-            this.$store.commit('SET_USER', data.user)
-            this.$store.commit('SET_TOKEN', token)
+            _this.$store.commit('SET_USER', data.username)
+            _this.$store.commit('SET_TOKEN', token)
 
             if (window.localStorage) {
-              window.localStorage.setItem('user', JSON.stringify(data.user))
+              window.localStorage.setItem('user', JSON.stringify(data.username))
               window.localStorage.setItem('token', token)
             }
 
-            this.$router.push(data.redirect)
+            _this.$router.push(data.redirect !== undefined ? data.redirect : '/')
           }
-        })
-        .catch(error => {
-          this.$store.commit('TOGGLE_LOADING')
-          console.log(error)
-
-          this.response = 'Server appears to be offline'
-          this.toggleLoading()
+        }).catch(function (error) {
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.log(error.response.data)
+            console.log(_this)
+            _this.response = error.response.data.message
+            console.log(error.response.status)
+            console.log(error.response.headers)
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            console.log(error.request)
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message)
+          }
+          console.log(error.config)
         })
     },
     toggleLoading () {
@@ -115,7 +141,7 @@ html,
 body,
 .container-table {
   height: 100%;
-  background-color: #282B30 !important;
+  background-color: #f5f5f5 !important;
 }
 
 .container-table {
@@ -128,25 +154,31 @@ body,
   vertical-align: middle;
 }
 
-.vertical-20p {
-  padding-top: 20%;
+.vertical-2p {
+  padding-top: 2%;
 }
 
-.vertical-10p {
-  padding-top: 10%;
+.vertical-5p {
+  padding-top: 5%;
 }
 
 .logo {
   width: 15em;
-  padding: 3em;
 }
 
-.loginForm .input-group {
+.input-group {
   padding-bottom: 1em;
   height: 4em;
 }
 
 .input-group input {
   height: 4em;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active для <2.1.8 */ {
+  opacity: 0
 }
 </style>

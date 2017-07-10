@@ -2,7 +2,7 @@
   <div :class="['wrapper', classes]">
     <header class="main-header">
 	<span class="logo-mini">
-		<a href="/"><img src="/static/img/copilot-logo-white.svg" alt="Logo" class="img-responsive center-block logo"></a>
+		<a href="/"><img src="/static/img/logo.svg" alt="Logo" class="img-responsive center-block logo"></a>
 	</span>
       <!-- Header Navbar -->
       <nav class="navbar navbar-static-top" role="navigation">

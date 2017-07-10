@@ -13,7 +13,7 @@ export default {
       return
     }
 
-    var url = config.serverURI + uri
+    var url = config.apiURL + uri
     return axios({ method, url, data })
   }
 }
