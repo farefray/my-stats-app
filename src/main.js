@@ -53,17 +53,17 @@ sync(store, router)
 new Vue({
   el: '#root',
   router: router,
-  store: store,
+  store,
   render: h => h(AppView)
 })
 
 // Check local storage to handle refreshes
 if (window.localStorage) {
-  var localUserString = window.localStorage.getItem('user') || 'null'
+  var localUserString = window.localStorage.getItem('username') || 'null'
   var localUser = JSON.parse(localUserString)
 
-  if (localUser && store.state.user !== localUser) {
-    store.commit('SET_USER', localUser)
+  if (localUser && store.state.username !== localUser) {
+    store.commit('SET_USERNAME', localUser)
     store.commit('SET_TOKEN', window.localStorage.getItem('token'))
   }
 }

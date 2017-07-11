@@ -35,11 +35,11 @@
 
       <div class="col-md-3 col-sm-6 col-xs-12">
         <div class="info-box">
-          <span class="info-box-icon bg-green"><i class="ion ion-ios-cart-outline"></i></span>
+          <span class="info-box-icon bg-green"><i class="ion ion-social-usd-outline"></i></span>
 
           <div class="info-box-content">
-            <span class="info-box-text">Sales</span>
-            <span class="info-box-number">760</span>
+            <span class="info-box-text">Bets stored</span>
+            <span class="info-box-number">0</span>
           </div>
           <!-- /.info-box-content -->
         </div>
@@ -51,8 +51,8 @@
           <span class="info-box-icon bg-yellow"><i class="ion ion-ios-people-outline"></i></span>
 
           <div class="info-box-content">
-            <span class="info-box-text">New Members</span>
-            <span class="info-box-number">2,000</span>
+            <span class="info-box-text">Total Users</span>
+            <span class="info-box-number">{{totalUsers}}</span>
           </div>
           <!-- /.info-box-content -->
         </div>
@@ -169,10 +169,12 @@
 
 <script>
 import Chart from 'chart.js'
+import api from '../../api'
 
 export default {
   data () {
     return {
+      totalUsers: 0,
       generateRandomNumbers (numbers, max, min) {
         var a = []
         for (var i = 0; i < numbers; i++) {
@@ -255,6 +257,11 @@ export default {
       }
 
       new Chart(pieChartCanvas, pieConfig) // eslint-disable-line no-new
+
+      api.request('get', 'users', {})
+      .then(response => {
+          this.totalUsers = response.data.length
+        })
     })
   }
 }

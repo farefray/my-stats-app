@@ -11,7 +11,7 @@
           <span class="sr-only">Toggle navigation</span>
         </a>
         <!-- Navbar Right Menu -->
-        <div class="navbar-custom-menu">
+        <div class="navbar-custom-menu" v-if="isLoggedIn()">
           <ul class="nav navbar-nav">
             <!-- Messages-->
             <li class="dropdown messages-menu">
@@ -115,17 +115,32 @@
             <li class="dropdown user user-menu">
               <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
                 <!-- The user image in the navbar-->
-                <img v-bind:src="demo.avatar" class="user-image" alt="User Image">
+                <img v-bind:src="avatar" class="user-image" alt="User Image">
                 <!-- hidden-xs hides the username on small devices so only the image appears. -->
-                <span class="hidden-xs">{{ demo.displayName }}</span>
+                <span class="hidden-xs">{{ username }}</span>
               </a>
+              <ul class="dropdown-menu">
+                <li class="footer">
+                  <a href="" v-on:click.stop.prevent="logout()">Logout</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="navbar-custom-menu" v-else>
+          <ul class="nav navbar-nav">
+            <li class="dropdown user user-menu">
+              <router-link to="/login">
+                <i class="fa fa-circle-o text-green"></i>
+                <span class="page"> Login \ Register</span>
+              </router-link>
             </li>
           </ul>
         </div>
       </nav>
     </header>
     <!-- Left side column. contains the logo and sidebar -->
-    <sidebar :display-name="demo.displayName" :picture-url="demo.avatar" />
+    <sidebar :loggedIn="isLoggedIn()" :picture-url="avatar" />
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -158,11 +173,9 @@
 </template>
 
 <script>
-import faker from 'faker'
 import { mapState } from 'vuex'
 import config from '../config'
 import Sidebar from './Sidebar'
-import 'hideseek'
 
 export default {
   name: 'Dash',
@@ -177,23 +190,32 @@ export default {
         fixed_layout: config.fixedLayout,
         hide_logo: config.hideLogoOnMobile
       },
-      error: ''
+      error: '',
+      avatar: ''
     }
   },
   computed: {
     ...mapState([
-      'userInfo'
-    ]),
-    demo () {
-      return {
-        displayName: faker.name.findName(),
-        avatar: faker.image.avatar(),
-        email: faker.internet.email(),
-        randomCard: faker.helpers.createCard()
-      }
-    }
+      'userInfo',
+      'username',
+      'token'
+    ])
   },
   methods: {
+    isLoggedIn () {
+      return this.username != null && this.token != null
+    },
+    logout () {
+      this.$store.commit('SET_USERNAME', null)
+      this.$store.commit('SET_TOKEN', null)
+
+      if (window.localStorage) {
+        window.localStorage.setItem('username', null)
+        window.localStorage.setItem('token', null)
+      }
+
+      this.$router.push('/')
+    },
     changeloading () {
       this.$store.commit('TOGGLE_SEARCHING')
     }

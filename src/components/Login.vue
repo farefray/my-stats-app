@@ -54,6 +54,20 @@ export default {
       response: ''
     }
   },
+  created: function () {
+    // `this` points to the vm instance
+    console.log('a is: ' + this.loggedIn)
+  },
+  computed: {
+    usernam () {
+      return this.$store.username
+    },
+    loggedIn () {
+      console.log(this.$store.username)
+      console.log(this.$store.token)
+      return this.$store.username != null && this.$store.token != null
+    }
+  },
   methods: {
     registerClick () {
       if (this.register) {
@@ -95,11 +109,11 @@ export default {
           if (data.username) {
             var token = 'Bearer ' + data.token
 
-            _this.$store.commit('SET_USER', data.username)
+            _this.$store.commit('SET_USERNAME', data.username)
             _this.$store.commit('SET_TOKEN', token)
 
             if (window.localStorage) {
-              window.localStorage.setItem('user', JSON.stringify(data.username))
+              window.localStorage.setItem('username', JSON.stringify(data.username))
               window.localStorage.setItem('token', token)
             }
 

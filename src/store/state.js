@@ -1,7 +1,7 @@
 export default {
   callingAPI: false,
   searching: '',
-  user: null,
+  username: null,
   token: null,
   userInfo: {
     messages: [{1: 'test', 2: 'test'}],
