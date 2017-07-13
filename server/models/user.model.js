@@ -2,6 +2,7 @@ import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import APIError from '../helpers/APIError';
+import Bet from './bet.model';
 import crypto from 'crypto';
 
 /**
@@ -9,6 +10,7 @@ import crypto from 'crypto';
  */
 const UserSchema = new mongoose.Schema({
   username: {
+    // Todo validation here
     type: String,
     unique: true,
     required: true
@@ -24,7 +26,8 @@ const UserSchema = new mongoose.Schema({
   created: {
     type: Date,
     default: Date.now
-  }
+  },
+  bets : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bet' }]
 });
 
 /**

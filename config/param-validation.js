@@ -1,11 +1,28 @@
 import Joi from 'joi';
 
 export default {
+  // POST /api/bets
+  storeBet: {
+    body: {
+      id: Joi.string().required()
+    }
+  },
+
   // POST /api/users
   createUser: {
     body: {
       username: Joi.string().required(),
       password: Joi.string().required()
+    }
+  },
+
+  // UPDATE /api/bets/:betId
+  updateBet: {
+    body: {
+      id: Joi.string().required()
+    },
+    params: {
+      betId: Joi.string().hex().required()
     }
   },
 
