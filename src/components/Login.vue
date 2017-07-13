@@ -117,7 +117,7 @@ export default {
               window.localStorage.setItem('token', token)
             }
 
-            _this.$router.push(data.redirect !== undefined ? data.redirect : '/')
+            _this.$router.push(_this.$route.query.redirect !== undefined ? _this.$route.query.redirect : '/')
           }
         }).catch(function (error) {
           if (error.response) {

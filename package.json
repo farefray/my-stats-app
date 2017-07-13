@@ -57,6 +57,7 @@
     "mongoose": "^4.10.8",
     "morgan": "1.7.0",
     "vue": "^2.2.2",
+    "vue-circle-menu": "^1.1.1",
     "vue-date-picker": "^1.0.2",
     "vue-resource": "^1.0.3",
     "vue-router": "^2.2.0",
