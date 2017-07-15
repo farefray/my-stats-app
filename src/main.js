@@ -34,7 +34,7 @@ var router = new VueRouter({
 
 // Some middleware to help us ensure the user is authenticated.
 router.beforeEach((to, from, next) => {
-  if (to.meta.auth && (router.app.$store.state.token === null)) {
+  if (to.meta.auth && !(router.app.$store.getters.authenticated)) {
     window.console.log('Not authenticated')
     router.push('/')
     next({
@@ -46,6 +46,20 @@ router.beforeEach((to, from, next) => {
   }
 })
 
+// Check local storage to handle refreshes (not its hanled by localstorage vuex)
+/*
+if (window.localStorage) {
+  var localUserString = window.localStorage.getItem('username') || 'null'
+  var localUser = JSON.parse(localUserString)
+
+  if (localUser && store.state.username !== localUser) {
+    console.log('commiting store')
+    store.commit('SET_USERNAME', localUser)
+    store.commit('SET_TOKEN', window.localStorage.getItem('token'))
+  }
+}
+*/
+
 sync(store, router)
 
 // Start out app!
@@ -56,14 +70,3 @@ new Vue({
   store,
   render: h => h(AppView)
 })
-
-// Check local storage to handle refreshes
-if (window.localStorage) {
-  var localUserString = window.localStorage.getItem('username') || 'null'
-  var localUser = JSON.parse(localUserString)
-
-  if (localUser && store.state.username !== localUser) {
-    store.commit('SET_USERNAME', localUser)
-    store.commit('SET_TOKEN', window.localStorage.getItem('token'))
-  }
-}

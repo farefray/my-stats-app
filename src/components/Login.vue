@@ -54,18 +54,17 @@ export default {
       response: ''
     }
   },
-  created: function () {
-    // `this` points to the vm instance
-    console.log('a is: ' + this.loggedIn)
+  mounted () {
+    this.$nextTick(() => {
+      if (this.loggedIn) {
+        this.afterLogin()
+      }
+    })
   },
+
   computed: {
-    usernam () {
-      return this.$store.username
-    },
     loggedIn () {
-      console.log(this.$store.username)
-      console.log(this.$store.token)
-      return this.$store.username != null && this.$store.token != null
+      return this.$store.getters.authenticated
     }
   },
   methods: {
@@ -117,7 +116,7 @@ export default {
               window.localStorage.setItem('token', token)
             }
 
-            _this.$router.push(_this.$route.query.redirect !== undefined ? _this.$route.query.redirect : '/')
+            _this.afterLogin()
           }
         }).catch(function (error) {
           if (error.response) {
@@ -139,6 +138,9 @@ export default {
           }
           console.log(error.config)
         })
+    },
+    afterLogin () {
+      this.$router.push(this.$route.query.redirect !== undefined ? this.$route.query.redirect : '/')
     },
     toggleLoading () {
       this.loading = (this.loading === '') ? 'loading' : ''

@@ -21,7 +21,7 @@ const BetSchema = new mongoose.Schema({
     type: {
       type: [{
         type: String,
-        enum: ['single', 'accumulator']
+        enum: ['single', 'multi']
       }],
       default: ['single']
     },
