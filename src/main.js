@@ -10,7 +10,8 @@ import store from './store'
 import { domain, count, prettyDate, pluralize } from './filters'
 
 // Handy debugging function for Vue.
-import 'vue-clicky'
+import 'vue-clicky' // TODO remove it
+import Notifications from 'vue-notification'
 
 // Import Views - Top level
 import AppView from './components/App.vue'
@@ -22,6 +23,7 @@ Vue.filter('prettyDate', prettyDate)
 Vue.filter('pluralize', pluralize)
 
 Vue.use(VueRouter)
+Vue.use(Notifications)
 
 // Routing logic
 var router = new VueRouter({

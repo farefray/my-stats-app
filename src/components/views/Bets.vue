@@ -211,6 +211,13 @@ export default {
             window.console.log(response)
             if (response.status === 200 && response.data && response.data._id) {
               this.action = 'display_bets'
+              this.$notify({
+                title: 'Success action',
+                type: 'success',
+                text: 'Bet was imported',
+                duration: 3000,
+                speed: 1000
+              })
             }
           })
           .catch(function (error) {
