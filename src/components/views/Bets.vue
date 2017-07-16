@@ -16,233 +16,53 @@
       <div class="import-menu-bar row">
         <!--"Middle" type, four sub menu, animation introduced animate.css library, white mask, round custom switch button, default menu color configuration-->
         <circle-menu type="right" :number="2" animate="animated jello" mask='black' circle>
-          <a slot="item_1" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Store single bet" v-on:click="storeBet()"></a>
+          <a slot="item_1" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Store single bet" v-on:click="switchView('store_bet')"></a>
           <a slot="item_2" class="fa fa-plus fa-lg"></a>
         </circle-menu>
       </div>
     </div>
     <div class="row center-block" v-if="action == 'store_bet'">
-     <vue-form-generator :schema="schema" :model="model" :options="formOptions" @validated="onValidated"></vue-form-generator>
-     <button class="btn btn-success" v-on:click="storeBet(true)">Store bet</button>
+      <store-bet v-on:done="switchView()"></store-bet>
    </div>
   </section>
 </template>
 
 <script>
 import CircleMenu from 'vue-circle-menu'
-import VueFormGenerator from 'vue-form-generator'
-import UIBet from '../../objects/uibet'
+import StoreBet from './bets/StoreBet'
 import api from '../../api'
-import store from '../../store'
 
 export default {
   name: 'Bets',
   data (router) {
     return {
       action: 'display_bets',
-      model: {
-            id: '№ 185800' + Math.random(1, 100),
-            date: '343242347', // TODO
-            single: true,
-		        odds: 1.5,
-		        stake: 1.1,
-            currency: 'USD',
-            won: true,
-            participants: 'Execration - Rex Regum Qeon',
-            pick: 'Execration',
-            winners: 'Execration',
-            discipline: 'Dota 2',
-            website: '1xbetua.com'
-      },
-      schema: {
-            fields: [
-            {
-                type: 'input',
-								inputType: 'text',
-                label: 'ID',
-                model: 'id',
-                readonly: false,
-                featured: true,
-                required: true,
-                disabled: false
-            },
-            {
-                type: 'input',
-								inputType: 'text',
-                label: 'Date',
-                model: 'date',
-                readonly: false,
-                featured: true,
-                required: true,
-                disabled: false,
-                placeholder: 'Date when bet was placed'
-            },
-            {
-                type: 'switch',
-                label: 'Type',
-                model: 'single',
-                multi: true,
-                readonly: false,
-                featured: false,
-                disabled: false,
-                default: true,
-                textOn: 'Single',
-                textOff: 'Multi'
-            },
-            {
-                type: 'input',
-                inputType: 'number',
-                label: 'Odds',
-                model: 'odds',
-                validator: VueFormGenerator.validators.number
-            },
-            {
-                type: 'input',
-                inputType: 'number',
-                label: 'Stake',
-                model: 'stake',
-                validator: VueFormGenerator.validators.number
-            },
-            {
-                type: 'input',
-								inputType: 'text',
-                label: 'Currency',
-                model: 'currency',
-                readonly: false,
-                featured: true,
-                required: true,
-                disabled: false,
-                placeholder: 'Bet currency'
-            },
-            {
-               type: 'switch',
-                label: 'Status',
-                model: 'won',
-                multi: true,
-                readonly: false,
-                featured: false,
-                disabled: false,
-                default: true,
-								textOn: 'Won',
-								textOff: 'Lost'
-            },
-            {
-                type: 'input',
-								inputType: 'text',
-                label: 'Discipline',
-                model: 'discipline',
-                readonly: false,
-                featured: false,
-                required: false,
-                disabled: false
-            },
-            {
-                type: 'input',
-								inputType: 'text',
-                label: 'Participants',
-                model: 'participants',
-                readonly: false,
-                featured: false,
-                required: false,
-                disabled: false
-            },
-            {
-                type: 'input',
-								inputType: 'text',
-                label: 'Pick',
-                model: 'pick',
-                readonly: false,
-                featured: false,
-                required: false,
-                disabled: false
-            },
-            {
-                type: 'input',
-								inputType: 'text',
-                label: 'Winners',
-                model: 'winners',
-                readonly: false,
-                featured: false,
-                required: false,
-                disabled: false
-            },
-            {
-                type: 'input',
-								inputType: 'text',
-                label: 'Website',
-                model: 'website',
-                readonly: false,
-                featured: false,
-                required: false,
-                disabled: false
-            }
-          ]
-        },
-        formOptions: {
-          validateAfterLoad: false,
-          validateAfterChanged: true
-         }
+      storedBets: []
     }
   },
   components: {
     CircleMenu,
-    'vue-form-generator': VueFormGenerator.component
+    StoreBet
   },
   mounted () {
     this.$nextTick(() => {
-      console.log('mounted_nexttck')
+      this.updateBets()
     })
   },
   methods: {
     updateBets () {
-      api.request('bet', 'bets').then(response => {
-          window.console.log(response)
+      api.request('get', 'bets').then(response => {
+          if (response.data) {
+            this.storedBets = response.data
+          }
         })
     },
-    storeBet (submit) {
-      this.action = 'store_bet'
-
-      if (submit) {
-        var betdata = this.model
-        betdata.user = store.state.username
-        console.log(betdata)
-        var bet = new UIBet(betdata)
-        api.request('post', 'bets', bet).then(response => {
-            window.console.log(response)
-            if (response.status === 200 && response.data && response.data._id) {
-              this.action = 'display_bets'
-              this.$notify({
-                title: 'Success action',
-                type: 'success',
-                text: 'Bet was imported',
-                duration: 3000,
-                speed: 1000
-              })
-            }
-          })
-          .catch(function (error) {
-            if (error.response) {
-              // The request was made and the server responded with a status code
-              // that falls out of the range of 2xx
-              console.log(error.response.data)
-              console.log(error.response.status)
-              console.log(error.response.headers)
-            } else if (error.request) {
-              // The request was made but no response was received
-              // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-              // http.ClientRequest in node.js
-              console.log(error.request)
-            } else {
-              // Something happened in setting up the request that triggered an Error
-              console.log('Error', error.message)
-            }
-            console.log(error.config)
-          })
+    switchView (act) {
+      console.log('switchView')
+      this.action = act !== undefined ? act : 'display_bets'
+      if (this.action === 'display_bets') {
+        this.updateBets()
       }
-    },
-    onValidated (isValid, errors) {
-      // TODO block confirm
-      console.log('Validation result: ', isValid, ', Errors:', errors)
     }
   }
 }
@@ -261,60 +81,4 @@ export default {
   padding:5px 3px;
 }
 
-pre {
-	overflow: auto;
-}
-	pre .string { color: #885800; }
-	pre .number { color: blue; }
-	pre .boolean { color: magenta; }
-	pre .null { color: red; }
-	pre .key { color: green; }
-
-h1 {
-	text-align: center;
-	font-size: 36px;
-	margin-top: 20px;
-	margin-bottom: 10px;
-	font-weight: 500;
-}
-
-fieldset {
-	border: 0;
-}
-
-.panel {
-	margin-bottom: 20px;
-	background-color: #fff;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-	box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-	border-color: #ddd;
-}
-
-.panel-heading {
-	color: #333;
-	background-color: #f5f5f5;
-	border-color: #ddd;
-
-	padding: 10px 15px;
-	border-bottom: 1px solid transparent;
-	border-top-left-radius: 3px;
-	border-top-right-radius: 3px;
-}
-
-.panel-body {
-	padding: 15px;
-}
-
-.field-checklist .wrapper {
-	width: 100%;
-}
-
-.form-control {
-  height: 100%;
-}
-
-
-.vue-form-generator *{box-sizing:border-box}.vue-form-generator .form-control{display:block;padding:6px 12px;font-size:14px;line-height:1.42857143;color:#555;background-color:#fff;background-image:none;border:1px solid #ccc;border-radius:4px;box-shadow:inset 0 1px 1px rgba(0,0,0,.075);transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out}.vue-form-generator .form-control:not([class*=" col-"]){width:100%}.vue-form-generator span.help{margin-left:.3em;position:relative}.vue-form-generator span.help .icon{display:inline-block;width:16px;height:14px;background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAA+UlEQVQ4ja3TS0oDQRAG4C8+lq7ceICICoLGK7iXuNBbeAMJuPVOIm7cqmDiIncIggg+cMZFaqCnZyYKWtB0df31V1VXdfNH6S2wD9CP8xT3KH8T9BiTcE7XBMOfyBcogvCFO9ziLWwFRosyV+QxthNsA9dJkEYlvazsQdi3sBv6Ol6TBLX+HWT3fcQZ3vGM5fBLk+ynAU41m1biCXvhs4OPBDuBpa6GxF0P8YAj3GA1d1qJfdoS4DOIcIm1DK9x8iaWeDF/SP3QU6zRROpjLDFLsFlibx1jJaMkSIGrWKntvItcyTBKzCcybsvc9ZmYz3kz9Ooz/b98A8yvW13B3ch6AAAAAElFTkSuQmCC");background-repeat:no-repeat;background-position:50%}.vue-form-generator span.help .helpText{background-color:#444;bottom:30px;color:#fff;display:block;left:0;opacity:0;padding:20px;pointer-events:none;position:absolute;text-align:justify;width:300px;transition:all .25s ease-out;box-shadow:2px 2px 6px rgba(0,0,0,.5);border-radius:6px}.vue-form-generator span.help .helpText a{font-weight:700;text-decoration:underline}.vue-form-generator span.help .helpText:before{bottom:-20px;content:" ";display:block;height:20px;left:0;position:absolute;width:100%}.vue-form-generator span.help:hover .helpText{opacity:1;pointer-events:auto;transform:translateY(0)}.vue-form-generator .field-wrap{display:flex}.vue-form-generator .field-wrap .buttons{white-space:nowrap;margin-left:4px}.vue-form-generator .field-wrap button,.vue-form-generator .field-wrap input[type=submit]{display:inline-block;padding:6px 12px;margin:0;font-size:14px;font-weight:400;line-height:1.42857143;text-align:center;white-space:nowrap;vertical-align:middle;touch-action:manipulation;cursor:pointer;user-select:none;color:#333;background-color:#fff;border:1px solid #ccc;border-radius:4px}.vue-form-generator .field-wrap button:not(:last-child),.vue-form-generator .field-wrap input[type=submit]:not(:last-child){margin-right:4px}.vue-form-generator .field-wrap button:hover,.vue-form-generator .field-wrap input[type=submit]:hover{color:#333;background-color:#e6e6e6;border-color:#adadad}.vue-form-generator .field-wrap button:active,.vue-form-generator .field-wrap input[type=submit]:active{color:#333;background-color:#d4d4d4;border-color:#8c8c8c;outline:0;box-shadow:inset 0 3px 5px rgba(0,0,0,.125)}.vue-form-generator .field-wrap button:disabled,.vue-form-generator .field-wrap input[type=submit]:disabled{opacity:.6;cursor:not-allowed}.vue-form-generator .hint{font-style:italic;font-size:.8em}.vue-form-generator .form-group{display:inline-block;vertical-align:top;width:100%;margin-bottom:1rem}.vue-form-generator .form-group label{font-weight:400}.vue-form-generator .form-group.featured>label{font-weight:700}.vue-form-generator .form-group.required>label:after{content:"*";font-weight:400;color:red;padding-left:.2em;font-size:1em}.vue-form-generator .form-group.disabled>label{color:#666;font-style:italic}.vue-form-generator .form-group.error input:not([type=checkbox]),.vue-form-generator .form-group.error select,.vue-form-generator .form-group.error textarea{border:1px solid red;background-color:rgba(255,0,0,.15)}.vue-form-generator .form-group.error .errors{color:red;font-size:.8em}.vue-form-generator .form-group.error .errors span{display:block;background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAiklEQVR4Xt2TMQoCQQxF3xdhu72MpZU3GU/meBFLOztPYrVWsQmEWSaMsIXgK8P8RyYkMjO2sAN+K9gTIAmDAlzoUzE7p4IFytvDCQWJKSStYB2efcAvqZFM0BcstMx5naSDYFzfLhh/4SmRM+6Agw/xIX0tKEDFufeDNRUc4XqLRz3qabVIf3BMHwl6Ktexn3nmAAAAAElFTkSuQmCC");background-repeat:no-repeat;padding-left:17px;padding-top:0;margin-top:.2em;font-weight:600}.vue-form-generator .field-checkbox input{margin-left:12px}.vue-form-generator .field-checklist .dropList,.vue-form-generator .field-checklist .listbox{height:auto;max-height:150px;overflow:auto}.vue-form-generator .field-checklist .dropList .list-row label,.vue-form-generator .field-checklist .listbox .list-row label{font-weight:400}.vue-form-generator .field-checklist .dropList .list-row input,.vue-form-generator .field-checklist .listbox .list-row input{margin-right:.3em}.vue-form-generator .field-checklist .combobox{height:auto;overflow:hidden}.vue-form-generator .field-checklist .combobox .mainRow{cursor:pointer;position:relative;padding-right:10px}.vue-form-generator .field-checklist .combobox .mainRow .arrow{position:absolute;right:-9px;top:3px;width:16px;height:16px;transform:rotate(0deg);transition:transform .5s;background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAGdJREFUOI3tzjsOwjAURNGDUqSgTxU5K2AVrJtswjUsgHSR0qdxAZZFPrS+3ZvRzBsqf9MUtBtazJk+oMe0VTriiZCFX8nbpENMgfARjsn74vKj5IFruhfc8d6zIF9S/Hyk5HS4spMVeFcOjszaOwMAAAAASUVORK5CYII=");background-repeat:no-repeat}.vue-form-generator .field-checklist .combobox .mainRow.expanded .arrow{transform:rotate(-180deg)}.vue-form-generator .field-checklist .combobox .dropList{transition:height .5s}.vue-form-generator .field-input .wrapper,.vue-form-generator .field-input input[type=radio]{width:100%}.vue-form-generator .field-input input[type=color]{width:60px}.vue-form-generator .field-input input[type=range]{padding:0}.vue-form-generator .field-input .helper{margin:auto .5em}.vue-form-generator .field-label span{display:block;width:100%;margin-left:12px}.vue-form-generator .field-radios .radio-list label{display:block}.vue-form-generator .field-radios .radio-list label input[type=radio]{margin-right:5px}.vue-form-generator .field-submit input{color:#fff!important;background-color:#337ab7!important;border-color:#2e6da4!important}.vue-form-generator .field-image .wrapper{width:100%}.vue-form-generator .field-image .preview{position:relative;margin-top:5px;height:100px;background-repeat:no-repeat;background-size:contain;background-position:50%;border:1px solid #ccc;border-radius:3px;box-shadow:inset 0 1px 1px rgba(0,0,0,.075)}.vue-form-generator .field-image .preview .remove{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXUlEQVR42u2SwQoAIAhD88vVLy8KBlaS0i1oJwP3piGVg0Skmpq8HjqZrWl9uwCbGAmwKYGZs/6iqgMyAdJuM8W2QmYKpLt/0AG9ASCv/oAnANd3AEjmAlFT1BypAV+PnRH5YehvAAAAAElFTkSuQmCC");width:16px;height:16px;font-size:1.2em;position:absolute;right:.2em;bottom:.2em;opacity:.7}.vue-form-generator .field-image .preview .remove:hover{opacity:1;cursor:pointer}.vue-form-generator .field-noUiSlider .field-wrap{display:block}.vue-form-generator .field-noUiSlider .contain-pips{margin-bottom:30px}.vue-form-generator .field-noUiSlider .contain-tooltip{margin-top:30px}.vue-form-generator .field-noUiSlider .noUi-vertical{height:200px;margin:10px 0}.vue-form-generator .field-rangeSlider .irs{width:100%}.vue-form-generator .field-selectEx .bootstrap-select .dropdown-menu li.selected .text{font-weight:700}.vue-form-generator .field-staticMap img{display:block;width:auto;max-width:100%}.vue-form-generator .field-switch .field-wrap label{position:relative;display:block;vertical-align:top;width:120px;height:30px;padding:0;margin:0 10px 10px 0;border-radius:15px;box-shadow:inset 0 -1px #fff,inset 0 1px 1px rgba(0,0,0,.05);cursor:pointer}.vue-form-generator .field-switch input{position:absolute;top:0;left:0;opacity:0}.vue-form-generator .field-switch .label{position:relative;display:block;height:inherit;font-size:10px;text-transform:uppercase;background:#eceeef;border-radius:inherit;box-shadow:inset 0 1px 2px rgba(0,0,0,.12),inset 0 0 2px rgba(0,0,0,.15)}.vue-form-generator .field-switch .label:after,.vue-form-generator .field-switch .label:before{position:absolute;top:50%;margin-top:-.5em;line-height:1;-webkit-transition:inherit;-moz-transition:inherit;-o-transition:inherit;transition:inherit}.vue-form-generator .field-switch .label:before{content:attr(data-off);right:11px;color:#aaa;text-shadow:0 1px hsla(0,0%,100%,.5)}.vue-form-generator .field-switch .label:after{content:attr(data-on);left:11px;color:#fff;text-shadow:0 1px rgba(0,0,0,.2);opacity:0}.vue-form-generator .field-switch input:checked~.label{background:#e1b42b;box-shadow:inset 0 1px 2px rgba(0,0,0,.15),inset 0 0 3px rgba(0,0,0,.2)}.vue-form-generator .field-switch input:checked~.label:before{opacity:0}.vue-form-generator .field-switch input:checked~.label:after{opacity:1}.vue-form-generator .field-switch .handle{position:absolute;top:1px;left:1px;width:28px;height:28px;background:linear-gradient(180deg,#fff 40%,#f0f0f0);background-image:-webkit-linear-gradient(top,#fff 40%,#f0f0f0);border-radius:100%;box-shadow:1px 1px 5px rgba(0,0,0,.2)}.vue-form-generator .field-switch .handle:before{content:"";position:absolute;top:50%;left:50%;margin:-6px 0 0 -6px;width:12px;height:12px;background:linear-gradient(180deg,#eee,#fff);background-image:-webkit-linear-gradient(top,#eee,#fff);border-radius:6px;box-shadow:inset 0 1px rgba(0,0,0,.02)}.vue-form-generator .field-switch input:checked~.handle{left:91px;left:calc(100% - ($field-switch-height - 1px));box-shadow:-1px 1px 5px rgba(0,0,0,.2)}.vue-form-generator .field-switch .handle,.vue-form-generator .field-switch .label{transition:all .3s ease}
 </style>
