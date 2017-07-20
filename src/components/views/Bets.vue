@@ -5,12 +5,12 @@
       <!--"Middle" type, four sub menu, animation introduced animate.css library, white mask, round custom switch button, default menu color configuration-->
       <circle-menu type="right" :number="2" animate="animated jello" mask='black' circle>
         <a slot="item_1" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Store single bet" v-on:click="switchView('store_bet')"></a>
-        <a slot="item_2" class="fa fa-plus fa-lg"></a>
+        <a slot="item_2" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Prase multiple bets" v-on:click="switchView('parse_bets')"></a>
       </circle-menu>
       <div class="col-md-12">
         <div class="box">
           <div class="box-body">
-            <ag-grid-vue style="width: 100%; height: 750px;" class="ag-fresh"
+            <ag-grid-vue style="width: 100%; height: 750px;" class="ag-blue"
              :gridOptions="gridOptions"
              :columnDefs="columnDefs"
              :rowData="storedBets"
@@ -25,25 +25,30 @@
     </div>
     <div class="row center-block" v-if="action == 'store_bet'">
       <store-bet v-on:done="switchView()"></store-bet>
-   </div>
+    </div>
+    <div class="row center-block" v-if="action == 'parse_bets'">
+      <parse-bets v-on:done="switchView()"></parse-bets>
+    </div>
   </section>
 </template>
 
 <script>
 import '../../../node_modules/ag-grid/dist/styles/ag-grid.css'  // TODO resolve this dependancies
-import '../../../node_modules/ag-grid/dist/styles/theme-fresh.css' // TODO resolve this dependancies
+import '../../../node_modules/ag-grid/dist/styles/theme-blue.css' // TODO resolve this dependancies
+import 'ag-grid-enterprise/main'
 import {AgGridVue} from 'ag-grid-vue'
 import ClickableParentComponent from './bets/ClickableParentComponent'
 
 import CircleMenu from 'vue-circle-menu'
 import StoreBet from './bets/StoreBet'
+import ParseBets from './bets/ParseBets'
 import api from '../../api'
 
 export default {
   name: 'Bets',
   data (router) {
     return {
-      action: 'display_bets',
+      action: 'parse_bets',
       storedBets: null,
       gridOptions: null,
       columnDefs: null
@@ -52,7 +57,8 @@ export default {
   components: {
     'ag-grid-vue': AgGridVue,
     CircleMenu,
-    StoreBet
+    StoreBet,
+    ParseBets
   },
   beforeMount () {
             this.gridOptions = {}

@@ -39,7 +39,7 @@
 
           <div class="info-box-content">
             <span class="info-box-text">Bets stored</span>
-            <span class="info-box-number">0</span>
+            <span class="info-box-number">{{totalBets}}</span>
           </div>
           <!-- /.info-box-content -->
         </div>
@@ -175,6 +175,7 @@ export default {
   data () {
     return {
       totalUsers: 0,
+      totalBets: 0,
       generateRandomNumbers (numbers, max, min) {
         var a = []
         for (var i = 0; i < numbers; i++) {
@@ -262,6 +263,11 @@ export default {
       .then(response => {
           this.totalUsers = response.data.length
         })
+
+        api.request('get', 'bets', {})
+        .then(response => {
+            this.totalBets = response.data.length
+          })
     })
   }
 }

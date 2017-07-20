@@ -64,7 +64,7 @@ BetSchema.statics = {
       .skip(+skip)
       .limit(+limit)
       .exec();
-  }
+    }
 };
 
 /**

@@ -10,7 +10,8 @@ export default Vue.extend({
     },
     methods: {
         onClicked (cell) {
-            console.log('Child Cell Clicked: ' + JSON.stringify(cell))
+          console.log(cell)
+            console.log('Child Cell Clicked: ')
         }
     },
     components: {

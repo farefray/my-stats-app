@@ -5,7 +5,7 @@ export default Vue.extend({
     props: ['onClicked', 'cell'],
     methods: {
         click () {
-            this.onClicked(this.cell)
+            this.onClicked(this)
         }
     }
 })

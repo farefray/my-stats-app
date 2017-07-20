@@ -169,6 +169,7 @@ export default {
         betdata.user = store.state.username
         console.log(betdata)
         var bet = new UIBet(betdata)
+        bet.status = betdata.won ? 'win' : 'lost'
         api.request('post', 'bets', bet).then(response => {
             window.console.log(response)
             if (response.status === 200 && response.data && response.data._id) {

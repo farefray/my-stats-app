@@ -52,6 +52,10 @@ after@0.8.2:
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/after/-/after-0.8.2.tgz#fedb394f9f0e02aa9768e702bda23b505fae7e1f"
 
+ag-grid-enterprise@^11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/ag-grid-enterprise/-/ag-grid-enterprise-11.0.0.tgz#720cb7db9998639c9b5316a512b92c758d8e79d9"
+
 ag-grid-vue@11.0.0:
   version "11.0.0"
   resolved "https://registry.yarnpkg.com/ag-grid-vue/-/ag-grid-vue-11.0.0.tgz#32d7172f57df8727179942e04a1ba273ec4e650b"
