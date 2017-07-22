@@ -13,36 +13,54 @@
 </template>
 
 <script>
-// import UIBet from '../../../objects/uibet'
+import UIBet from '../../../objects/uibet'
 // import api from '../../../api'
 import {LicenseManager} from 'ag-grid-enterprise/main'
 import {AgGridVue} from 'ag-grid-vue'
 // import ClickableParentComponent from './ClickableParentComponent'
+import ParserCellComponent from './ParserCellComponent'
+import Chrono from 'chrono-node'
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
 function getMainMenuItems (params) {
-  return [
-      {
-          name: 'Joe Abercrombie',
-          action: function () {
-            console.log('He wrote a book')
-          },
-          icon: '<img src="../images/lab.png" style="width: 14px;"/>'
-      },
-      {
-          name: 'Larsson',
-          action: function () {
-            console.log('He also wrote a book')
-          },
-          checked: true
-      },
-      'resetColumns'
-  ]
+  let betExample = new UIBet()
+  let menuItems = []
+  console.log(params)
+  Object.keys(betExample).forEach(function (key) {
+    menuItems.push({
+        name: key,
+        row: params.column.colId,
+        params: params,
+        action: function (p) {
+          console.log(this.row + ' picked ' + key)
+          console.log(this)
+          let currentData = this.params.api.gridCore.gridOptions.rowData
+          for (var i = 0; i <= currentData.length - 1; i++) {
+            switch (key) {
+              case 'date': {
+                var validateDate = Chrono.parse(currentData[i]['' + this.row + ''].value)
+                console.log(validateDate)
+              }
+            }
+
+            currentData[i]['' + this.row + ''].type = key
+          }
+        }
+        // icon: '<img src="../images/lab.png" style="width: 14px;"/>'
+    })
+  })
+
+  menuItems.push('resetColumns')
+  return menuItems
 }
 
 var gridOptions = {
-  singleClickEdit: true,
   getMainMenuItems: getMainMenuItems
+}
+
+function parcerCellFormatter (params) {
+    console.log(params)
+    return (params.value)
 }
 
 export default {
@@ -52,33 +70,41 @@ export default {
       gridOptions: gridOptions,
       rowData: [],
       columnDefs: [],
-      raw: `№ 1799775633
-from 23.06.2017 | 21:57
-Dota 2. The International. Best of 3 maps
-ALLFAM - Planet Dog (2 map)
+      raw: `№ 1862910769
+from 17.07.2017 | 12:41
+Dota 2. World Cyber Arena. Qualification. Best of 3 maps
+Execration - Rex Regum Qeon (1 map)
 Stake
-270 UAH
-Win:
-480.6 UAH
+250 UAH
 Bet type
 Single
 Bet slip status
-Win
-1.78
-№ 1799758829
-from 23.06.2017 | 21:52
-Dota 2. The International. Best of 3 maps
-ALLFAM - Planet Dog (2 map)
+Loss
+2.37
+№ 1862672859
+from 17.07.2017 | 10:26
+Dota2. WCA Quali
+Execration - RRQ
 Stake
 250 UAH
 Win:
-455 UAH
+326 UAH
+Bet type
+Accumulator
+Bet slip status
+Win
+1.304
+№ 1861388995
+from 16.07.2017 | 19:20
+Dota 2. Overpower Cup. Best of 3 maps
+PENTA - dd
+Stake
+250 UAH
 Bet type
 Single
 Bet slip status
-Win
-1.82`,
-    selectedOptions: [],
+Loss
+2.56`,
     elements: []
     }
   },
@@ -93,40 +119,49 @@ Win
     },
     updateRaw () {
       const rowData = []
-      this.selectedOptions = []
       let parsed = this.raw.split('\n')
       let fullElement = {}
       let first = null
       let letNumber = 97
+      let longestElement = {}
+
       for (var i = 0; i <= parsed.length - 1; i++) {
         let el = parsed[i]
         if (first === null) {
           first = el
         } else if (el.length === first.length) {
           // thats new row
+          // TODO what if next row assidently is same length
           rowData.push(fullElement)
+          if (Object.keys(longestElement).length < Object.keys(fullElement).length) {
+            longestElement = fullElement
+          }
+
           fullElement = {}
           letNumber = 97
         }
 
-        fullElement[String.fromCharCode(letNumber)] = el
+        fullElement[String.fromCharCode(letNumber)] = {value: el, type: 'none'}
         letNumber++
       }
 
       rowData.push(fullElement) // last element
 
+      // lets first the longest, which supposed to be the one with max items
       var baseHeaders = []
-      Object.keys(fullElement).forEach(function (key) {
-        // let obj = fullElement[key];
-        // this.selectedOptions[key] = 'none'
+      Object.keys(longestElement).forEach(function (key) {
         baseHeaders.push({
             headerName: 'select',
-            field: key
+            field: key,
+            cellRendererFramework: ParserCellComponent,
+            valueFormatter: parcerCellFormatter,
+            menuTabs: ['generalMenuTab']
         })
       })
 
       console.log(rowData)
       console.log(baseHeaders)
+      console.log(longestElement)
       this.rowData = rowData
       this.columnDefs = baseHeaders
       }

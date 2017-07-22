@@ -56,13 +56,13 @@ ag-grid-enterprise@^11.0.0:
   version "11.0.0"
   resolved "https://registry.yarnpkg.com/ag-grid-enterprise/-/ag-grid-enterprise-11.0.0.tgz#720cb7db9998639c9b5316a512b92c758d8e79d9"
 
-ag-grid-vue@11.0.0:
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/ag-grid-vue/-/ag-grid-vue-11.0.0.tgz#32d7172f57df8727179942e04a1ba273ec4e650b"
+ag-grid-vue@12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/ag-grid-vue/-/ag-grid-vue-12.0.0.tgz#bef7dad4dad3be7c43ea9252d176a99b13dd152e"
 
-ag-grid@11.0.0:
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/ag-grid/-/ag-grid-11.0.0.tgz#842817ddee1c19f0efff3edd46463e521058fe14"
+ag-grid@12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/ag-grid/-/ag-grid-12.0.0.tgz#82518e3cbeabcafed6d357715efdf0055c787822"
 
 agent-base@2:
   version "2.1.1"
@@ -1404,6 +1404,12 @@ chromedriver@^2.27.2:
     mkdirp "^0.5.1"
     request "^2.81.0"
     rimraf "^2.5.4"
+
+chrono-node@^1.3.4:
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/chrono-node/-/chrono-node-1.3.4.tgz#fc2a9208636e09d6fd7b12d94ae2440937de24bd"
+  dependencies:
+    moment "^2.10.3"
 
 ci-info@^1.0.0:
   version "1.0.0"
@@ -5482,7 +5488,7 @@ mocha@^3.2.0:
     mkdirp "0.5.1"
     supports-color "3.1.2"
 
-moment@2.x.x, moment@^2.10.6, moment@^2.12.0:
+moment@2.x.x, moment@^2.10.3, moment@^2.10.6, moment@^2.12.0:
   version "2.18.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
 

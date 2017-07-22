@@ -14,18 +14,20 @@ export default class UIBet {
   website = '';
 
   constructor (data) {
-    this.id = data.id
-    this.userid = data.userid
-    this.date = data.date
-    this.type = data.type
-    this.odds = data.odds
-    this.stake = data.stake
-    this.currency = data.currency
-    this.status = data.status
-    this.discipline = data.discipline
-    this.participants = data.participants
-    this.pick = data.pick
-    this.winners = data.winners
-    this.website = data.website
+    if (data !== undefined) {
+      this.id = data.id
+      this.userid = data.userid
+      this.date = data.date
+      this.type = data.type
+      this.odds = data.odds
+      this.stake = data.stake
+      this.currency = data.currency
+      this.status = data.status
+      this.discipline = data.discipline
+      this.participants = data.participants
+      this.pick = data.pick
+      this.winners = data.winners
+      this.website = data.website
+    }
   }
 }

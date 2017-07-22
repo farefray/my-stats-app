@@ -1,0 +1,33 @@
+<template>
+    <div :class="params.value.type" v-if="params.value">
+      {{params.value.value}} <span class="label label-success" v-if="params.value.type != 'none'" >{{params.value.type}}</span>
+    </div>
+</template>
+
+<script>
+    import Vue from 'vue'
+
+    export default Vue.extend({
+        data () {
+            return {
+                smt: 'none'
+            }
+        },
+        mounted () {
+          console.log(this.params)
+        },
+        methods: {
+        }
+    })
+</script>
+
+<style scoped>
+div.none {
+  color:red;
+}
+
+.label {
+    position: absolute;
+    right: 10px;
+}
+</style>
