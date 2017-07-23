@@ -1,6 +1,14 @@
 <template>
     <div :class="params.value.type" v-if="params.value">
-      {{params.value.value}} <span class="label label-success" v-if="params.value.type != 'none'" >{{params.value.type}}</span>
+      <span v-if="params.value.type == 'participants'">
+        <span v-for="elem in params.value.value" :key="elem.key">
+          [ ]{{elem}} ]
+        </span>
+      </span>
+      <span v-else>
+      {{params.value.value}}
+      </span>
+      <span class="label label-success" v-if="params.value.type != 'none'" >{{params.value.type}}</span>
     </div>
 </template>
 

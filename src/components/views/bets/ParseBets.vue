@@ -36,14 +36,53 @@ function getMainMenuItems (params) {
           console.log(this)
           let currentData = this.params.api.gridCore.gridOptions.rowData
           for (var i = 0; i <= currentData.length - 1; i++) {
+            let value = currentData[i]['' + this.row + ''].value
             switch (key) {
               case 'date': {
-                var validateDate = Chrono.parse(currentData[i]['' + this.row + ''].value)
-                console.log(validateDate)
+                let validateDate = Chrono.parse(value)
+                let formattedValue = ''
+                if (validateDate.length > 0) {
+                  for (var j = 0; j <= validateDate.length - 1; j++) {
+                    formattedValue += validateDate[j].text
+                  }
+
+                  currentData[i]['' + this.row + ''].type = key
+                  currentData[i]['' + this.row + ''].value = (formattedValue)
+                  console.log(Date.parse(Chrono.parseDate(currentData[i]['' + this.row + ''].value)))
+                } else {
+                  console.log('failed')
+                }
+
+                break
+              }
+
+              case 'discipline': {
+                if (value.toLowerCase().indexOf('dota 2') >= 0 || value.toLowerCase().indexOf('dota2') >= 0) {
+                  currentData[i]['' + this.row + ''].type = key
+                  currentData[i]['' + this.row + ''].value = 'dota 2'
+                } else {
+                  console.log('failed')
+                }
+
+                break
+              }
+
+              case 'participants': {
+                let participants = value.split(' - ')
+                let participantsArray = []
+                participants.forEach(function (key) {
+                  participantsArray.push(key.split('(')[0].trim())
+                })
+
+                currentData[i]['' + this.row + ''].value = participantsArray
+                currentData[i]['' + this.row + ''].type = key
+                break
+              }
+
+              default: {
+                currentData[i]['' + this.row + ''].type = key
               }
             }
-
-            currentData[i]['' + this.row + ''].type = key
           }
         }
         // icon: '<img src="../images/lab.png" style="width: 14px;"/>'
