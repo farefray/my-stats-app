@@ -2,7 +2,7 @@
     <div :class="params.value.type" v-if="params.value">
       <span v-if="params.value.type == 'participants'">
         <span v-for="elem in params.value.value" :key="elem.key">
-          [ ]{{elem}} ]
+          [ {{elem}} ]
         </span>
       </span>
       <span v-else>
@@ -22,7 +22,7 @@
             }
         },
         mounted () {
-          console.log(this.params)
+          // console.log(this.params)
         },
         methods: {
         }

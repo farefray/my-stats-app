@@ -1,14 +1,23 @@
 <template>
   <section class="parse-bets">
-    <textarea mdInput v-model="raw" required v-on:blur="updateRaw()"
-                     placeholder=""></textarea>
-    <ag-grid-vue style="width: 100%; height: 350px;" class="ag-blue"
-    :gridOptions="gridOptions"
-    :columnDefs="columnDefs"
-    :rowData="rowData"
-    :componentStateChanged="stateChanged"
-    :columnEverythingChanged="stateChanged">
-    </ag-grid-vue>
+    <accordion :one-at-atime="false" type="info">
+    <panel :is-open="!rawPasted" type="primary">
+      <strong slot="header"><u>Paste raw data here</u></strong>
+      <textarea mdInput v-model="raw" required v-on:blur="updateRaw()"
+                       placeholder=""></textarea>
+    </panel>
+    <panel :is-open="rawPasted" header="Help us to parse your data">
+      <ag-grid-vue style="width: 100%; height: 350px;" class="ag-blue"
+      :gridOptions="gridOptions"
+      :columnDefs="columnDefs"
+      :rowData="rowData"
+      :rowDataChanged="rowDataChanged">
+      </ag-grid-vue>
+    </panel>
+    <panel :is-open="rawPasted" header="Results preview">
+      {{statusMessage}}
+    </panel>
+  </accordion>
   </section>
 </template>
 
@@ -20,6 +29,7 @@ import {AgGridVue} from 'ag-grid-vue'
 // import ClickableParentComponent from './ClickableParentComponent'
 import ParserCellComponent from './ParserCellComponent'
 import Chrono from 'chrono-node'
+import { accordion, panel } from 'vue-strap'
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
 function getMainMenuItems (params) {
@@ -79,11 +89,29 @@ function getMainMenuItems (params) {
                 break
               }
 
+              case 'stake': {
+                let stake = parseInt(value)
+                if (stake > 0) {
+                  currentData[i]['' + this.row + ''].value = stake
+                  currentData[i]['' + this.row + ''].type = key
+
+                  // lets guess currency
+                  let currency = value.split(' ')[1]
+                  if (currency) {
+                    // add it to grid
+                    // seems we need to store already parsed bets somewhere else, so we can just set values when changing
+                  }
+                }
+                break
+              }
+
               default: {
                 currentData[i]['' + this.row + ''].type = key
               }
             }
           }
+
+          this.params.api.dispatchEvent('rowDataChanged')
         }
         // icon: '<img src="../images/lab.png" style="width: 14px;"/>'
     })
@@ -94,11 +122,12 @@ function getMainMenuItems (params) {
 }
 
 var gridOptions = {
-  getMainMenuItems: getMainMenuItems
+  getMainMenuItems: getMainMenuItems,
+  customItem: 'test'
 }
 
 function parcerCellFormatter (params) {
-    console.log(params)
+    // remove this if not used
     return (params.value)
 }
 
@@ -109,6 +138,8 @@ export default {
       gridOptions: gridOptions,
       rowData: [],
       columnDefs: [],
+      rawPasted: false,
+      statusMessage: '',
       raw: `№ 1862910769
 from 17.07.2017 | 12:41
 Dota 2. World Cyber Arena. Qualification. Best of 3 maps
@@ -144,17 +175,32 @@ Single
 Bet slip status
 Loss
 2.56`,
-    elements: []
+    elements: [],
+    resultedBets: []
     }
   },
   components: {
-    'ag-grid-vue': AgGridVue
+    'ag-grid-vue': AgGridVue,
+    accordion,
+    panel
   },
   beforeMount () {
   },
   methods: {
-    stateChanged ($event) {
-      console.log($event)
+    rowDataChanged () {
+      console.log('rowdaachanged')
+      let bets = 0
+      let reqrd = ''
+      let rows = this.rowData
+      Object.keys(rows).forEach(function (key) {
+        let rawBetData = rows[key]
+        let newBet = new UIBet()
+        newBet.fill(rawBetData)
+        reqrd = newBet.getRequired()
+        bets++
+      })
+
+      this.statusMessage = bets + ' bet ' + (bets > 0 ? 's' : '') + ' to be imported. Missing required fields:' + reqrd + Math.random()
     },
     updateRaw () {
       const rowData = []
@@ -203,7 +249,8 @@ Loss
       console.log(longestElement)
       this.rowData = rowData
       this.columnDefs = baseHeaders
-      }
+      this.rawPasted = true
+    }
   }
 }
 </script>
