@@ -31,6 +31,57 @@ import ParserCellComponent from './ParserCellComponent'
 import Chrono from 'chrono-node'
 import { accordion, panel } from 'vue-strap'
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
+var _ = require('lodash/core')
+
+function editDistance (s1, s2) {
+  s1 = s1.toLowerCase()
+  s2 = s2.toLowerCase()
+
+  var costs = []
+  for (var i = 0; i <= s1.length; i++) {
+    var lastValue = i
+    for (var j = 0; j <= s2.length; j++) {
+      if (i === 0) {
+        costs[j] = j
+      } else {
+        if (j > 0) {
+          var newValue = costs[j - 1]
+          if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+            newValue = Math.min(Math.min(newValue, lastValue),
+              costs[j]) + 1
+            }
+          costs[j - 1] = lastValue
+          lastValue = newValue
+        }
+      }
+    }
+
+    if (i > 0) {
+      costs[s2.length] = lastValue
+    }
+  }
+  return costs[s2.length]
+}
+
+function similarity (s1, s2) {
+  var longer = s1
+  var shorter = s2
+  if (s1.length < s2.length) {
+    longer = s2
+    shorter = s1
+  }
+  var longerLength = longer.length
+  if (longerLength === 0) {
+    return 1.0
+  }
+
+  let bonus = 0
+  if (longer === shorter) {
+    bonus += 0.5
+  }
+
+  return bonus + (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)
+}
 
 function getMainMenuItems (params) {
   let betExample = new UIBet()
@@ -89,6 +140,7 @@ function getMainMenuItems (params) {
                 break
               }
 
+              case 'currency':
               case 'stake': {
                 let stake = parseInt(value)
                 if (stake > 0) {
@@ -100,6 +152,8 @@ function getMainMenuItems (params) {
                   if (currency) {
                     // add it to grid
                     // seems we need to store already parsed bets somewhere else, so we can just set values when changing
+                    // two ways, first one is to hold bets in some other object and on this step we gonna fill it.
+                    // second way is to add new column here and mark it as currency
                   }
                 }
                 break
@@ -129,6 +183,23 @@ var gridOptions = {
 function parcerCellFormatter (params) {
     // remove this if not used
     return (params.value)
+}
+
+function nextLetter (s) {
+    return s.replace(/([a-zA-Z])[^a-zA-Z]*$/, function (a) {
+        var c = a.charCodeAt(0)
+        switch (c) {
+            case 90: {
+              return 'A'
+            }
+            case 122: {
+              return 'a'
+            }
+            default: {
+              return String.fromCharCode(++c)
+            }
+        }
+    })
 }
 
 export default {
@@ -200,7 +271,7 @@ Loss
         bets++
       })
 
-      this.statusMessage = bets + ' bet ' + (bets > 0 ? 's' : '') + ' to be imported. Missing required fields:' + reqrd + Math.random()
+      this.statusMessage = bets + ' bet ' + (bets > 0 ? 's' : '') + ' to be imported. Missing required fields:' + reqrd
     },
     updateRaw () {
       const rowData = []
@@ -243,6 +314,52 @@ Loss
             menuTabs: ['generalMenuTab']
         })
       })
+
+      // now lets try to fill missed fields and make our table grouped by simple element types
+      for (let i = 0; i <= rowData.length - 1; i++) {
+        let currentBet = rowData[i]
+        if (Object.keys(currentBet).length < Object.keys(longestElement).length) {
+          // this bet has not all data, lets guess missed ones.
+          Object.keys(currentBet).forEach(function (key) {
+            // debug
+            // rowData[i][key]['value'] = rowData[i][key]['value'] + ' (' + (similarity(currentBet[key]['value'], longestElement[key]['value'])) + ')'
+            let similar = currentBet[key]['value'] === '' ? 1 : (similarity(currentBet[key]['value'], longestElement[key]['value'])) // only compare if not empty
+            if (similar === 0) {
+              // check 1-2 next elements for better similarity
+              let nextkey = nextLetter(key)
+              let needToMove = 0
+              for (let n = 1; n <= 2; n++) {
+                  if ((similarity(rowData[i][nextkey]['value'], longestElement[key]['value'])) > similar) {
+                    console.log(rowData[i][key]['value'] + ' need to move for ' + n)
+                    needToMove = n
+                  }
+
+                  nextkey = nextLetter(key)
+              }
+
+              // debugger
+              if (needToMove > 0) {
+                for (let m = 0; m < needToMove; m++) {
+                  console.log('mvongin')
+                  // move
+                  var curr = _.clone(rowData[i][key])
+                  rowData[i][key]['value'] = ''
+                  rowData[i][key]['type'] = 'none'
+                  console.log(curr)
+                  // TODO use some default state object for this
+                  let kkey = nextLetter(key)
+                  while (longestElement[kkey] !== undefined) {
+                    let tmp = _.clone(curr)
+                    curr = _.clone(rowData[i][kkey])
+                    rowData[i][kkey] = tmp
+                    kkey = nextLetter(kkey)
+                  }
+                }
+              }
+            }
+          })
+        }
+      }
 
       console.log(rowData)
       console.log(baseHeaders)
