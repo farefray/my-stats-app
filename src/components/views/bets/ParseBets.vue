@@ -64,13 +64,15 @@ function editDistance (s1, s2) {
 }
 
 function similarity (s1, s2) {
-  var longer = s1
-  var shorter = s2
+  let longer = s1
+  let shorter = s2
   if (s1.length < s2.length) {
     longer = s2
     shorter = s1
   }
-  var longerLength = longer.length
+
+  let longerLength = longer.length
+  let shorterLength = shorter.length
   if (longerLength === 0) {
     return 1.0
   }
@@ -80,7 +82,36 @@ function similarity (s1, s2) {
     bonus += 0.5
   }
 
-  return bonus + (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)
+  // hardcode participants for 1xbet
+  if (longer.indexOf(' - ') > 0 && shorter.indexOf(' - ') > 0) {
+    bonus += 1
+  }
+
+  // compare char by char with mask
+  while (shorterLength--) {
+    // isNaN(num)     // returns true if the variable does NOT contain a valid number
+    let l = longer[shorterLength]
+    let s = shorter[shorterLength]
+    if (/[0-9]/.test(l) && /[0-9]/.test(s)) {
+      bonus += 1.0 / parseFloat(longer.length)
+      // eslint-disable-next-line no-useless-escape
+    } else if (/[~`!#$%&*+=\-\[\]\\';,/{}|\\":<>\?]/g.test(l) && /[~`!#$%&*+=\-\[\]\\';,/{}|\\":<>\?]/g.test(s)) {
+      bonus += (1.0 / parseFloat(longer.length)) * 2.0
+    } else if (l === ' ' && l === s) {
+      bonus += (1.0 / parseFloat(longer.length)) * 2.0
+    }
+  }
+
+  /* let longerSplit = _.words(longer)
+  let shorterSplit = _.words(shorter)
+  if (longerSplit.length === shorterSplit.length) {
+    bonus += longerSplit.length * 0.1
+  } */
+
+  let final = bonus /* + (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength) */
+  console.log(shorter + ' vs ' + longer + ' = ' + final)
+  console.log(shorter + ' vs ' + longer + ' = ' + (bonus + (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)))
+  return final
 }
 
 function getMainMenuItems (params) {
@@ -211,41 +242,30 @@ export default {
       columnDefs: [],
       rawPasted: false,
       statusMessage: '',
-      raw: `№ 1862910769
-from 17.07.2017 | 12:41
-Dota 2. World Cyber Arena. Qualification. Best of 3 maps
-Execration - Rex Regum Qeon (1 map)
+      raw: `№ 1848025423
+from 11.07.2017 | 21:26
+Dota 2. Prodota Cup. Best of 3 maps
+PENTA - Gambit
 Stake
-250 UAH
+655 UAH
+Win:
+936.65 UAH
 Bet type
 Single
 Bet slip status
-Loss
-2.37
-№ 1862672859
-from 17.07.2017 | 10:26
-Dota2. WCA Quali
-Execration - RRQ
+Win
+1.43
+№ 1844728001
+from 10.07.2017 | 15:46
+Dota2. Overpower
+M19 - PENTA
 Stake
-250 UAH
-Win:
-326 UAH
+100 UAH
 Bet type
 Accumulator
 Bet slip status
-Win
-1.304
-№ 1861388995
-from 16.07.2017 | 19:20
-Dota 2. Overpower Cup. Best of 3 maps
-PENTA - dd
-Stake
-250 UAH
-Bet type
-Single
-Bet slip status
 Loss
-2.56`,
+2.915625`,
     elements: [],
     resultedBets: []
     }
@@ -285,7 +305,7 @@ Loss
         let el = parsed[i]
         if (first === null) {
           first = el
-        } else if (el.length === first.length) {
+        } else if (el.length === first.length && similarity(el, first) > 0.5) {
           // thats new row
           // TODO what if next row assidently is same length
           rowData.push(fullElement)
@@ -322,24 +342,26 @@ Loss
           // this bet has not all data, lets guess missed ones.
           Object.keys(currentBet).forEach(function (key) {
             // debug
-            // rowData[i][key]['value'] = rowData[i][key]['value'] + ' (' + (similarity(currentBet[key]['value'], longestElement[key]['value'])) + ')'
-            let similar = currentBet[key]['value'] === '' ? 1 : (similarity(currentBet[key]['value'], longestElement[key]['value'])) // only compare if not empty
-            if (similar === 0) {
+            let similar = currentBet[key]['value'] === '' ? 1 : (similarity(currentBet[key]['value'], longestElement[key]['value']))
+            if (similar <= 0.5) {
+              console.log(rowData[i][key]['value'] + ' need to move. Lets search more than ' + similar)
               // check 1-2 next elements for better similarity
               let nextkey = nextLetter(key)
               let needToMove = 0
-              for (let n = 1; n <= 2; n++) {
-                  if ((similarity(rowData[i][nextkey]['value'], longestElement[key]['value'])) > similar) {
-                    console.log(rowData[i][key]['value'] + ' need to move for ' + n)
+              for (var n = 1; n <= 2; n++) {
+                  console.log('checking ' + longestElement[nextkey]['value'] + ' and: ' + (similarity(rowData[i][key]['value'], longestElement[nextkey]['value'])))
+                  if ((similarity(rowData[i][key]['value'], longestElement[nextkey]['value'])) > similar) {
+                    console.log(rowData[i][key]['value'] + ' need to move for ' + n + ' cuz its more silimar to ' + longestElement[nextkey]['value'])
+                    similar = (similarity(rowData[i][key]['value'], longestElement[nextkey]['value']))
                     needToMove = n
                   }
 
-                  nextkey = nextLetter(key)
+                  nextkey = nextLetter(nextkey)
               }
 
               // debugger
               if (needToMove > 0) {
-                for (let m = 0; m < needToMove; m++) {
+                for (var m = 0; m < needToMove; m++) {
                   console.log('mvongin')
                   // move
                   var curr = _.clone(rowData[i][key])
@@ -356,6 +378,8 @@ Loss
                   }
                 }
               }
+            } else {
+              rowData[i][key]['similarity'] = (similarity(currentBet[key]['value'], longestElement[key]['value']))
             }
           })
         }

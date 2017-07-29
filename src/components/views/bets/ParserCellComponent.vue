@@ -9,6 +9,7 @@
       {{params.value.value}}
       </span>
       <span class="label label-success" v-if="params.value.type != 'none'" >{{params.value.type}}</span>
+      <span class="label label-success" v-if="params.value.type === 'none'" >{{params.value.similarity}}</span>
     </div>
 </template>
 
