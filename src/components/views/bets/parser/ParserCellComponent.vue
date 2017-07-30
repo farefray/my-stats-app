@@ -1,5 +1,5 @@
 <template>
-    <div :class="params.value.type" v-if="params.value">
+    <div :class="params.value.type" v-if="params.value" @click="click">
       <span v-if="params.value.type == 'participants'">
         <span v-for="elem in params.value.value" :key="elem.key">
           [ {{elem}} ]
@@ -26,6 +26,10 @@
           // console.log(this.params)
         },
         methods: {
+          click () {
+              console.log(this)
+              console.log('Child Cell Clicked: ')
+          }
         }
     })
 </script>

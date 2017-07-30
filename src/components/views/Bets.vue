@@ -41,7 +41,7 @@ import ClickableParentComponent from './bets/ClickableParentComponent'
 
 import CircleMenu from 'vue-circle-menu'
 import StoreBet from './bets/StoreBet'
-import ParseBets from './bets/ParseBets'
+import ParseBets from './bets/parser/ParseBets'
 import api from '../../api'
 
 export default {

@@ -16,103 +16,28 @@
     </panel>
     <panel :is-open="rawPasted" header="Results preview">
       {{statusMessage}}
+      <ag-grid-vue style="width: 100%; height: 350px;" class="ag-blue"
+      :gridOptions="gridOptions"
+      :columnDefs="columnDefs"
+      :rowData="rowData"
+      :rowDataChanged="rowDataChanged">
+      </ag-grid-vue>
     </panel>
   </accordion>
   </section>
 </template>
 
 <script>
-import UIBet from '../../../objects/uibet'
+import { similarity } from './parser.helpers'
+import UIBet from '../../../../objects/uibet'
 // import api from '../../../api'
 import {LicenseManager} from 'ag-grid-enterprise/main'
 import {AgGridVue} from 'ag-grid-vue'
-// import ClickableParentComponent from './ClickableParentComponent'
 import ParserCellComponent from './ParserCellComponent'
 import Chrono from 'chrono-node'
 import { accordion, panel } from 'vue-strap'
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 var _ = require('lodash/core')
-
-function editDistance (s1, s2) {
-  s1 = s1.toLowerCase()
-  s2 = s2.toLowerCase()
-
-  var costs = []
-  for (var i = 0; i <= s1.length; i++) {
-    var lastValue = i
-    for (var j = 0; j <= s2.length; j++) {
-      if (i === 0) {
-        costs[j] = j
-      } else {
-        if (j > 0) {
-          var newValue = costs[j - 1]
-          if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-            newValue = Math.min(Math.min(newValue, lastValue),
-              costs[j]) + 1
-            }
-          costs[j - 1] = lastValue
-          lastValue = newValue
-        }
-      }
-    }
-
-    if (i > 0) {
-      costs[s2.length] = lastValue
-    }
-  }
-  return costs[s2.length]
-}
-
-function similarity (s1, s2) {
-  let longer = s1
-  let shorter = s2
-  if (s1.length < s2.length) {
-    longer = s2
-    shorter = s1
-  }
-
-  let longerLength = longer.length
-  let shorterLength = shorter.length
-  if (longerLength === 0) {
-    return 1.0
-  }
-
-  let bonus = 0
-  if (longer === shorter) {
-    bonus += 0.5
-  }
-
-  // hardcode participants for 1xbet
-  if (longer.indexOf(' - ') > 0 && shorter.indexOf(' - ') > 0) {
-    bonus += 1
-  }
-
-  // compare char by char with mask
-  while (shorterLength--) {
-    // isNaN(num)     // returns true if the variable does NOT contain a valid number
-    let l = longer[shorterLength]
-    let s = shorter[shorterLength]
-    if (/[0-9]/.test(l) && /[0-9]/.test(s)) {
-      bonus += 1.0 / parseFloat(longer.length)
-      // eslint-disable-next-line no-useless-escape
-    } else if (/[~`!#$%&*+=\-\[\]\\';,/{}|\\":<>\?]/g.test(l) && /[~`!#$%&*+=\-\[\]\\';,/{}|\\":<>\?]/g.test(s)) {
-      bonus += (1.0 / parseFloat(longer.length)) * 2.0
-    } else if (l === ' ' && l === s) {
-      bonus += (1.0 / parseFloat(longer.length)) * 2.0
-    }
-  }
-
-  /* let longerSplit = _.words(longer)
-  let shorterSplit = _.words(shorter)
-  if (longerSplit.length === shorterSplit.length) {
-    bonus += longerSplit.length * 0.1
-  } */
-
-  let final = bonus /* + (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength) */
-  console.log(shorter + ' vs ' + longer + ' = ' + final)
-  console.log(shorter + ' vs ' + longer + ' = ' + (bonus + (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)))
-  return final
-}
 
 function getMainMenuItems (params) {
   let betExample = new UIBet()
@@ -291,7 +216,7 @@ Loss
         bets++
       })
 
-      this.statusMessage = bets + ' bet ' + (bets > 0 ? 's' : '') + ' to be imported. Missing required fields:' + reqrd
+      this.statusMessage = bets + ' bet' + (bets > 0 ? 's' : '') + ' to be imported. Missing required fields:' + reqrd
     },
     updateRaw () {
       const rowData = []
@@ -344,14 +269,14 @@ Loss
             // debug
             let similar = currentBet[key]['value'] === '' ? 1 : (similarity(currentBet[key]['value'], longestElement[key]['value']))
             if (similar <= 0.5) {
-              console.log(rowData[i][key]['value'] + ' need to move. Lets search more than ' + similar)
+              // console.log(rowData[i][key]['value'] + ' need to move. Lets search more than ' + similar)
               // check 1-2 next elements for better similarity
               let nextkey = nextLetter(key)
               let needToMove = 0
               for (var n = 1; n <= 2; n++) {
-                  console.log('checking ' + longestElement[nextkey]['value'] + ' and: ' + (similarity(rowData[i][key]['value'], longestElement[nextkey]['value'])))
+                  // console.log('checking ' + longestElement[nextkey]['value'] + ' and: ' + (similarity(rowData[i][key]['value'], longestElement[nextkey]['value'])))
                   if ((similarity(rowData[i][key]['value'], longestElement[nextkey]['value'])) > similar) {
-                    console.log(rowData[i][key]['value'] + ' need to move for ' + n + ' cuz its more silimar to ' + longestElement[nextkey]['value'])
+                    // console.log(rowData[i][key]['value'] + ' need to move for ' + n + ' cuz its more silimar to ' + longestElement[nextkey]['value'])
                     similar = (similarity(rowData[i][key]['value'], longestElement[nextkey]['value']))
                     needToMove = n
                   }
@@ -362,12 +287,12 @@ Loss
               // debugger
               if (needToMove > 0) {
                 for (var m = 0; m < needToMove; m++) {
-                  console.log('mvongin')
+                  // console.log('mvongin')
                   // move
                   var curr = _.clone(rowData[i][key])
                   rowData[i][key]['value'] = ''
                   rowData[i][key]['type'] = 'none'
-                  console.log(curr)
+                  // console.log(curr)
                   // TODO use some default state object for this
                   let kkey = nextLetter(key)
                   while (longestElement[kkey] !== undefined) {
