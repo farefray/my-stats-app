@@ -6,226 +6,82 @@
       <textarea mdInput v-model="raw" required v-on:blur="updateRaw()"
                        placeholder=""></textarea>
     </panel>
-    <panel :is-open="rawPasted" header="Help us to parse your data">
-      <ag-grid-vue style="width: 100%; height: 350px;" class="ag-blue"
-      :gridOptions="gridOptions"
-      :columnDefs="columnDefs"
-      :rowData="rowData"
-      :rowDataChanged="rowDataChanged">
-      </ag-grid-vue>
+    <panel :is-open="rawPasted" header="Help us to parse your data" disabled="disabled">
+      <raw-pasted-table :rowData="rowData" v-on:parsed="processParced"></raw-pasted-table>
     </panel>
-    <panel :is-open="rawPasted" header="Results preview">
+    <panel :is-open="rawPasted && rawProcessed" header="Results preview">
       {{statusMessage}}
-      <ag-grid-vue style="width: 100%; height: 350px;" class="ag-blue"
-      :gridOptions="gridOptions"
-      :columnDefs="columnDefs"
-      :rowData="rowData"
-      :rowDataChanged="rowDataChanged">
-      </ag-grid-vue>
     </panel>
   </accordion>
   </section>
 </template>
 
 <script>
-import { similarity } from './parser.helpers'
-import UIBet from '../../../../objects/uibet'
+import { similarity, nextLetter } from './parser.helpers'
+
 // import api from '../../../api'
-import {LicenseManager} from 'ag-grid-enterprise/main'
-import {AgGridVue} from 'ag-grid-vue'
-import ParserCellComponent from './ParserCellComponent'
-import Chrono from 'chrono-node'
 import { accordion, panel } from 'vue-strap'
-LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 var _ = require('lodash/core')
-
-function getMainMenuItems (params) {
-  let betExample = new UIBet()
-  let menuItems = []
-  console.log(params)
-  Object.keys(betExample).forEach(function (key) {
-    menuItems.push({
-        name: key,
-        row: params.column.colId,
-        params: params,
-        action: function (p) {
-          console.log(this.row + ' picked ' + key)
-          console.log(this)
-          let currentData = this.params.api.gridCore.gridOptions.rowData
-          for (var i = 0; i <= currentData.length - 1; i++) {
-            let value = currentData[i]['' + this.row + ''].value
-            switch (key) {
-              case 'date': {
-                let validateDate = Chrono.parse(value)
-                let formattedValue = ''
-                if (validateDate.length > 0) {
-                  for (var j = 0; j <= validateDate.length - 1; j++) {
-                    formattedValue += validateDate[j].text
-                  }
-
-                  currentData[i]['' + this.row + ''].type = key
-                  currentData[i]['' + this.row + ''].value = (formattedValue)
-                  console.log(Date.parse(Chrono.parseDate(currentData[i]['' + this.row + ''].value)))
-                } else {
-                  console.log('failed')
-                }
-
-                break
-              }
-
-              case 'discipline': {
-                if (value.toLowerCase().indexOf('dota 2') >= 0 || value.toLowerCase().indexOf('dota2') >= 0) {
-                  currentData[i]['' + this.row + ''].type = key
-                  currentData[i]['' + this.row + ''].value = 'dota 2'
-                } else {
-                  console.log('failed')
-                }
-
-                break
-              }
-
-              case 'participants': {
-                let participants = value.split(' - ')
-                let participantsArray = []
-                participants.forEach(function (key) {
-                  participantsArray.push(key.split('(')[0].trim())
-                })
-
-                currentData[i]['' + this.row + ''].value = participantsArray
-                currentData[i]['' + this.row + ''].type = key
-                break
-              }
-
-              case 'currency':
-              case 'stake': {
-                let stake = parseInt(value)
-                if (stake > 0) {
-                  currentData[i]['' + this.row + ''].value = stake
-                  currentData[i]['' + this.row + ''].type = key
-
-                  // lets guess currency
-                  let currency = value.split(' ')[1]
-                  if (currency) {
-                    // add it to grid
-                    // seems we need to store already parsed bets somewhere else, so we can just set values when changing
-                    // two ways, first one is to hold bets in some other object and on this step we gonna fill it.
-                    // second way is to add new column here and mark it as currency
-                  }
-                }
-                break
-              }
-
-              default: {
-                currentData[i]['' + this.row + ''].type = key
-              }
-            }
-          }
-
-          this.params.api.dispatchEvent('rowDataChanged')
-        }
-        // icon: '<img src="../images/lab.png" style="width: 14px;"/>'
-    })
-  })
-
-  menuItems.push('resetColumns')
-  return menuItems
-}
-
-var gridOptions = {
-  getMainMenuItems: getMainMenuItems,
-  customItem: 'test'
-}
-
-function parcerCellFormatter (params) {
-    // remove this if not used
-    return (params.value)
-}
-
-function nextLetter (s) {
-    return s.replace(/([a-zA-Z])[^a-zA-Z]*$/, function (a) {
-        var c = a.charCodeAt(0)
-        switch (c) {
-            case 90: {
-              return 'A'
-            }
-            case 122: {
-              return 'a'
-            }
-            default: {
-              return String.fromCharCode(++c)
-            }
-        }
-    })
-}
 
 export default {
   name: 'ParseBets',
   data () {
     return {
-      gridOptions: gridOptions,
-      rowData: [],
-      columnDefs: [],
-      rawPasted: false,
       statusMessage: '',
-      raw: `№ 1848025423
-from 11.07.2017 | 21:26
-Dota 2. Prodota Cup. Best of 3 maps
-PENTA - Gambit
+      raw: `№ 1882471689
+from 24.07.2017 | 15:53
+StarCraft II. StarLeague
+ROOT.herO - JinAir.Maru
 Stake
-655 UAH
-Win:
-936.65 UAH
-Bet type
-Single
-Bet slip status
-Win
-1.43
-№ 1844728001
-from 10.07.2017 | 15:46
-Dota2. Overpower
-M19 - PENTA
-Stake
-100 UAH
+250 UAH
 Bet type
 Accumulator
 Bet slip status
 Loss
-2.915625`,
-    elements: [],
-    resultedBets: []
+2.0923
+№ 1882426065
+from 24.07.2017 | 15:34
+StarCraft II. StarLeague
+INnoVation - Dear
+Stake
+250 UAH
+Bet type
+Accumulator
+Bet slip status
+Loss
+2.20576`,
+      rowData: '',
+      elements: [],
+      resultedBets: [],
+      rawProcessed: false
     }
   },
   components: {
-    'ag-grid-vue': AgGridVue,
+    'raw-pasted-table': () => import('./RawPastedTable'),
     accordion,
     panel
   },
   beforeMount () {
   },
+  computed: {
+    rawPasted: function () {
+      return this.raw !== ''
+    }
+  },
   methods: {
-    rowDataChanged () {
-      console.log('rowdaachanged')
-      let bets = 0
-      let reqrd = ''
-      let rows = this.rowData
-      Object.keys(rows).forEach(function (key) {
-        let rawBetData = rows[key]
-        let newBet = new UIBet()
-        newBet.fill(rawBetData)
-        reqrd = newBet.getRequired()
-        bets++
-      })
-
-      this.statusMessage = bets + ' bet' + (bets > 0 ? 's' : '') + ' to be imported. Missing required fields:' + reqrd
+    processParced (parsedBets) {
+      this.rawProcessed = true
+      console.log('parsed')
+      console.log(parsedBets)
+      //send to parsedBets preview table
     },
     updateRaw () {
-      const rowData = []
+      let rowData = []
       let parsed = this.raw.split('\n')
       let fullElement = {}
       let first = null
       let letNumber = 97
       let longestElement = {}
-
       for (var i = 0; i <= parsed.length - 1; i++) {
         let el = parsed[i]
         if (first === null) {
@@ -247,18 +103,6 @@ Loss
       }
 
       rowData.push(fullElement) // last element
-
-      // lets first the longest, which supposed to be the one with max items
-      var baseHeaders = []
-      Object.keys(longestElement).forEach(function (key) {
-        baseHeaders.push({
-            headerName: 'select',
-            field: key,
-            cellRendererFramework: ParserCellComponent,
-            valueFormatter: parcerCellFormatter,
-            menuTabs: ['generalMenuTab']
-        })
-      })
 
       // now lets try to fill missed fields and make our table grouped by simple element types
       for (let i = 0; i <= rowData.length - 1; i++) {
@@ -311,11 +155,7 @@ Loss
       }
 
       console.log(rowData)
-      console.log(baseHeaders)
-      console.log(longestElement)
       this.rowData = rowData
-      this.columnDefs = baseHeaders
-      this.rawPasted = true
     }
   }
 }
