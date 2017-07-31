@@ -54,8 +54,12 @@ function getMainMenuItems (params) {
                 if (value.toLowerCase().indexOf('dota 2') >= 0 || value.toLowerCase().indexOf('dota2') >= 0) {
                   currentData[i]['' + this.row + ''].type = key
                   currentData[i]['' + this.row + ''].value = 'dota 2'
+                } else if (value.toLowerCase().indexOf('starcraft 2') >= 0 || value.toLowerCase().indexOf('sc2') >= 0) {
+                  currentData[i]['' + this.row + ''].type = key
+                  currentData[i]['' + this.row + ''].value = 'dota 2'
                 } else {
-                  console.log('failed')
+                  currentData[i]['' + this.row + ''].type = key
+                  currentData[i]['' + this.row + ''].value = value.toLowerCase()
                 }
 
                 break
@@ -81,8 +85,11 @@ function getMainMenuItems (params) {
                   currentData[i]['' + this.row + ''].type = key
 
                   // lets guess currency
-                  let currency = value.split(' ')[1]
+                  let currency = typeof value === 'string' ? value.split(' ')[1] : false
                   if (currency) {
+                    currentData[i]['x'] = {}
+                    currentData[i]['x'].value = currency
+                    currentData[i]['x'].type = 'currency'
                     // add it to grid
                     // seems we need to store already parsed bets somewhere else, so we can just set values when changing
                     // two ways, first one is to hold bets in some other object and on this step we gonna fill it.
@@ -135,7 +142,6 @@ export default {
   methods: {
     rowDataChanged () {
       console.log('rowdaachanged')
-      let bets = 0
       let rows = this.rowData
       let longestElement = {}
       let parsedBets = []
@@ -144,7 +150,6 @@ export default {
         let newBet = new UIBet()
         newBet.fill(rawBetData)
         parsedBets.push(newBet)
-        bets++
 
         if (Object.keys(longestElement).length < Object.keys(rawBetData).length) {
           longestElement = rawBetData

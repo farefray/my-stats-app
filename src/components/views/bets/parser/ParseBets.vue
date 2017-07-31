@@ -9,8 +9,8 @@
     <panel :is-open="rawPasted" header="Help us to parse your data" disabled="disabled">
       <raw-pasted-table :rowData="rowData" v-on:parsed="processParced"></raw-pasted-table>
     </panel>
-    <panel :is-open="rawPasted && rawProcessed" header="Results preview">
-      {{statusMessage}}
+    <panel :is-open="false" header="Results preview">
+      <pre-import-table :parsedBets="parsedBets" v-on:imported="onImported"></pre-import-table>
     </panel>
   </accordion>
   </section>
@@ -28,36 +28,17 @@ export default {
   data () {
     return {
       statusMessage: '',
-      raw: `№ 1882471689
-from 24.07.2017 | 15:53
-StarCraft II. StarLeague
-ROOT.herO - JinAir.Maru
-Stake
-250 UAH
-Bet type
-Accumulator
-Bet slip status
-Loss
-2.0923
-№ 1882426065
-from 24.07.2017 | 15:34
-StarCraft II. StarLeague
-INnoVation - Dear
-Stake
-250 UAH
-Bet type
-Accumulator
-Bet slip status
-Loss
-2.20576`,
+      raw: '',
       rowData: '',
       elements: [],
       resultedBets: [],
-      rawProcessed: false
+      rawProcessed: false,
+      parsedBets: null
     }
   },
   components: {
     'raw-pasted-table': () => import('./RawPastedTable'),
+    'pre-import-table': () => import('./PreImportTable'),
     accordion,
     panel
   },
@@ -69,11 +50,13 @@ Loss
     }
   },
   methods: {
+    onImported () {
+      alert('ooohohohoh')
+    },
     processParced (parsedBets) {
       this.rawProcessed = true
-      console.log('parsed')
-      console.log(parsedBets)
-      //send to parsedBets preview table
+      this.parsedBets = parsedBets
+      console.log('parsed bets')
     },
     updateRaw () {
       let rowData = []
