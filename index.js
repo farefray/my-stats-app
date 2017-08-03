@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import util from 'util';
+import mongoose from 'mongoose'
+import util from 'util'
 
 // config should be imported before importing any other file
-import config from './config/config';
-import app from './config/express';
+import config from './config/config'
+import app from './config/express'
 
 const debug = require('debug')('express-mongoose-es6-rest-api:index');
 

@@ -35,14 +35,40 @@
 <script>
 import '../../../node_modules/ag-grid/dist/styles/ag-grid.css'  // TODO resolve this dependancies
 import '../../../node_modules/ag-grid/dist/styles/theme-blue.css' // TODO resolve this dependancies
-import 'ag-grid-enterprise/main'
 import {AgGridVue} from 'ag-grid-vue'
-import ClickableParentComponent from './bets/ClickableParentComponent'
-
+import {LicenseManager} from 'ag-grid-enterprise/main'
 import CircleMenu from 'vue-circle-menu'
 import StoreBet from './bets/StoreBet'
 import ParseBets from './bets/parser/ParseBets'
 import api from '../../api'
+import UIBet from '../../objects/uibet'
+
+LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
+
+function getContextMenuItems (params) {
+    let result = [
+        { // custom item
+            name: 'Remove',
+            action: function () {
+                console.log(this)
+                console.log(params)
+                let bet = new UIBet(params.node.data)
+                api.request('delete', 'bets', {
+                    bet
+                }).then(response => {
+                    console.log(response)
+                    delete params.api.gridCore.gridOptions.rowData.splice(params.node.rowIndex, 1)
+                    params.api.refreshCells()
+                })
+            },
+            icon: '<img src="/static/img/remove.gif"/>'
+        }, // built in separator
+        'separator',
+        'copy'
+    ]
+
+    return result
+}
 
 export default {
   name: 'Bets',
@@ -61,8 +87,11 @@ export default {
     ParseBets
   },
   beforeMount () {
-            this.gridOptions = {}
-            this.createColumnDefs()
+    this.gridOptions = {
+        getContextMenuItems: getContextMenuItems,
+        animateRows: true
+    }
+    this.createColumnDefs()
   },
   mounted () {
     this.$nextTick(() => {
@@ -71,53 +100,30 @@ export default {
   },
   methods: {
     createColumnDefs () {
-        this.columnDefs = [
-            {
-                headerName: 'Id',
-                field: 'id',
-                width: 100,
-                headerComponentParams: {
-                    menuIcon: 'fa-bars'
-                }
-            },
-            {
-                headerName: 'Date',
-                field: 'date',
-                width: 150
-            },
-            {
-                headerName: 'Type',
-                field: 'type',
-                width: 150
-            },
-            {
-                headerName: 'Odds',
-                field: 'odds',
-                width: 150
-            },
-            {
-                headerName: 'Stake',
-                field: 'stake',
-                width: 150
-            },
-            {
-                headerName: 'Status',
-                field: 'status',
-                width: 150
-            },
-            {
-                headerName: 'Clickable Component',
-                field: 'name',
-                cellRendererFramework: ClickableParentComponent,
-                width: 250
+        let newBet = new UIBet()
+        let baseHeaders = []
+        Object.keys(newBet).forEach(function (key) {
+            if (key === 'userid') {
+                return
             }
-        ]
+
+            let header = {
+                headerName: key,
+                field: key,
+                menuTabs: []
+            }
+
+            baseHeaders.push(header)
+        })
+
+        this.columnDefs = baseHeaders
     },
     updateBets () {
       let _this = this
       api.request('get', 'bets').then(response => {
           if (response.data) {
             _this.storedBets = response.data
+              this.gridOptions.api.sizeColumnsToFit()
           }
         })
     },

@@ -1,5 +1,6 @@
-import Bet from '../models/bet.model';
-
+import Bet from '../models/bet.model'
+import httpStatus from 'http-status'
+import APIError from '../helpers/APIError'
 /**
  * Load bet and append to req.
  */
@@ -17,7 +18,7 @@ function load(req, res, next, id) {
  * @returns {Bet}
  */
 function get(req, res) {
-  return res.json(req.bet);
+  return res.json(req.bet)
 }
 
 /**
@@ -76,10 +77,25 @@ function list(req, res, next) {
  * @returns {Bet}
  */
 function remove(req, res, next) {
-  const bet = req.bet;
-  bet.remove()
-    .then(deletedBet => res.json(deletedBet))
-    .catch(e => next(e));
+  const bet = req.body.bet
+  Bet.find({
+    id: bet.id,
+    _owner: bet.userid
+  }, function (err, bet) {
+      if (err) {
+          const error = new APIError('Authentication error: ' + err, httpStatus.INTERNAL_SERVER_ERROR, true)
+          return next(error)
+      }
+
+      if (bet[0]) {
+          bet[0].remove()
+              .then(deletedBet => res.json(deletedBet))
+              .catch(e => next(e))
+      } else {
+          const error = new APIError('Authentication error: Password is wrong', httpStatus.UNAUTHORIZED, true)
+          return next(error)
+      }
+  })
 }
 
 export default { load, get, create, update, list, remove };
