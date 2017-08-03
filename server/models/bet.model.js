@@ -11,12 +11,12 @@ const BetSchema = new mongoose.Schema({
       type: String,
       unique: true
     },
-    _owner : {
+    _owner: {
       type: String,
       ref: 'User'
     },
     date: {
-      type: Date,
+      type: Date
     },
     type: {
       type: [{
@@ -26,10 +26,10 @@ const BetSchema = new mongoose.Schema({
       default: ['single']
     },
     odds: {
-      type: Number,
+      type: Number
     },
     stake: {
-      type: Number,
+      type: Number
     },
     currency: {
       type: String
@@ -44,9 +44,7 @@ const BetSchema = new mongoose.Schema({
     winners: Array,
     discipline: String,
     website: String
-  });
-
-
+  })
 
 /**
  * Statics

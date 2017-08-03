@@ -99,6 +99,18 @@ function getMainMenuItems (params) {
                 break
               }
 
+              case 'type': {
+                  currentData[i]['' + this.row + ''].value = value.toLowerCase() === 'single' ? 'single' : 'multi'
+                  currentData[i]['' + this.row + ''].type = key
+                  break
+              }
+
+              case 'status': {
+                  currentData[i]['' + this.row + ''].value = value.toLowerCase()
+                  currentData[i]['' + this.row + ''].type = key
+                  break
+              }
+
               default: {
                 currentData[i]['' + this.row + ''].type = key
               }

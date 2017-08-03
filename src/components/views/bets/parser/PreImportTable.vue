@@ -42,11 +42,12 @@ export default {
   },
   methods: {
     importBets () {
+        let _this = this
       for (var i = 0; i < this.bets.length; i++) {
         api.request('post', 'bets', this.bets[i]).then(response => {
             window.console.log(response)
             if (response.status === 200 && response.data && response.data._id) {
-              this.$notify({
+                _this.$notify({
                 title: 'Success action',
                 type: 'success',
                 text: 'Bet was imported',
@@ -56,7 +57,7 @@ export default {
             }
           })
           .catch(function (error) {
-            this.$notify({
+              _this.$notify({
               title: 'Error action',
               type: 'error',
               text: 'Bet import failed',

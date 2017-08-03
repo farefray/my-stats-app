@@ -1,7 +1,7 @@
 <template>
     <div :ref="'container'" class="mood" tabindex="0">
-        <span v-for="item in items" @click="onClick(item.message)" >
-            {{ item.message }}
+        <span v-for="item in items" @click="onClick(item)" >
+            {{ item }}
         </span>
     </div>
 </template>
@@ -25,6 +25,17 @@
             onClick (val) {
                 this.value = val
                 this.params.api.stopEditing()
+
+                // set winners or losers
+                let thisBet = this.params.api.gridCore.gridOptions.rowData[this.params.rowIndex]
+                thisBet.winners = []
+                for (let i = 0; i <= thisBet.participants.length - 1; i++) {
+                    if (thisBet.status.toLowerCase() === 'win' && thisBet.participants[i] === val) {
+                        thisBet.winners.push(thisBet.participants[i])
+                    } else if (thisBet.status.toLowerCase() === 'loss' && thisBet.participants[i] !== val) {
+                        thisBet.winners.push(thisBet.participants[i])
+                    }
+                }
             }
          },
         created () {

@@ -48,7 +48,7 @@ export default {
   name: 'Bets',
   data (router) {
     return {
-      action: 'parse_bets',
+      action: 'display_bets',
       storedBets: null,
       gridOptions: null,
       columnDefs: null
