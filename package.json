@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "start": "node build/dev-server.js && gulp serve",
+    "start": "gulp serve",
     "start:debug": "cross-env DEBUG=express-mongoose-es6-rest-api:* yarn start",
     "build:api": "gulp",
     "lint:api": "esw *.js server config --color",
@@ -155,7 +155,6 @@
     "supertest-as-promised": "4.0.2",
     "url-loader": "^0.5.7",
     "validate-commit-msg": "^2.6.1",
-    "vue-clicky": "^1.1.0",
     "vue-loader": "^13.0.0",
     "vue-style-loader": "^3.0.1",
     "vue-template-compiler": "^2.2.4",

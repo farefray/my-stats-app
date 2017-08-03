@@ -10,7 +10,6 @@ import store from './store'
 import { domain, count, prettyDate, pluralize } from './filters'
 
 // Handy debugging function for Vue.
-import 'vue-clicky' // TODO remove it
 import Notifications from 'vue-notification'
 
 // Import Views - Top level

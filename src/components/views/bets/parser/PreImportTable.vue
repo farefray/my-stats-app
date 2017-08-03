@@ -15,6 +15,7 @@ import {AgGridVue} from 'ag-grid-vue'
 import UIBet from '../../../../objects/uibet'
 import {LicenseManager} from 'ag-grid-enterprise/main'
 import api from '../../../../api'
+import PickEditorComponent from './PickEditorComponent.vue'
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
 var gridOptions = {}
@@ -87,11 +88,34 @@ export default {
       let newBet = new UIBet()
       var baseHeaders = []
       Object.keys(newBet).forEach(function (key) {
-        baseHeaders.push({
+        let header = {
             headerName: key,
             field: key,
-            menuTabs: []
-        })
+            menuTabs: [],
+            editable: true
+        }
+
+        if (key === 'website') {
+            header['editable'] = true
+            header['cellEditor'] = 'select'
+            header['cellEditorParams'] = {
+                values: ['1xbet',
+                        '1xbet',
+                        '1xbet']
+            }
+            header['newValueHandler'] = function (params) {
+                params.api.forEachNode(function (rowNode, index) {
+                    rowNode.data.website = '1xbet'
+                    console.log(rowNode.data.website)
+                    console.log(index)
+                })
+            }
+        } else if (key === 'pick') {
+            header['editable'] = true
+            header['cellEditorFramework'] = PickEditorComponent
+        }
+
+        baseHeaders.push(header)
       })
 
       this.columnDefs = baseHeaders
