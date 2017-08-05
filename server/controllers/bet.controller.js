@@ -82,6 +82,7 @@ function remove(req, res, next) {
     id: bet.id,
     _owner: bet.userid
   }, function (err, bet) {
+      // TODO security or smt
       if (err) {
           const error = new APIError('Authentication error: ' + err, httpStatus.INTERNAL_SERVER_ERROR, true)
           return next(error)

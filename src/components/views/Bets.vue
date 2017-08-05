@@ -70,6 +70,11 @@ function getContextMenuItems (params) {
     return result
 }
 
+function dateFormatter (params) {
+  console.log(params)
+    return params.value + ' ;)'
+}
+
 export default {
   name: 'Bets',
   data (router) {
@@ -103,17 +108,29 @@ export default {
         let newBet = new UIBet()
         let baseHeaders = []
         Object.keys(newBet).forEach(function (key) {
-            if (key === 'userid') {
-                return
+          let header = {
+              headerName: key,
+              field: key,
+              menuTabs: []
+          }
+
+          switch (key) {
+            case 'userid': {
+              return
             }
 
-            let header = {
-                headerName: key,
-                field: key,
-                menuTabs: []
+            case 'date': {
+              header['cellFormatter'] = dateFormatter
+              console.log(header)
+              break
             }
 
-            baseHeaders.push(header)
+            default: {
+              break
+            }
+          }
+
+          baseHeaders.push(header)
         })
 
         this.columnDefs = baseHeaders
