@@ -1,8 +1,9 @@
-import DashView from './components/Dash.vue'
+import MainView from './components/Main.vue'
 import LoginView from './components/Login.vue'
 import NotFoundView from './components/404.vue'
 
 // Import Views - Dash
+import OverviewView from './components/views/Overview.vue'
 import DashboardView from './components/views/Dashboard.vue'
 import BetsView from './components/views/Bets.vue'
 import TasksView from './components/views/Tasks.vue'
@@ -19,14 +20,24 @@ const routes = [
   },
   {
     path: '/',
-    component: DashView,
+    component: MainView,
     children: [
       {
+        path: '',
+        component: OverviewView,
+        name: 'Overview',
+        meta: {
+          description: ''
+        }
+      }, {
         path: 'dashboard',
         alias: '',
         component: DashboardView,
-        name: 'Dashboard',
-        meta: {description: 'Overview of environment'}
+        name: 'My Dashboard',
+        meta: {
+          description: 'Overall user statistic',
+          auth: true
+        }
       }, {
         path: 'bets',
         component: BetsView,

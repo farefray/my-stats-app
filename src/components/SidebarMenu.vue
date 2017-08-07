@@ -9,7 +9,7 @@
 
     <li class="header">My Stats</li>
     <li class="pageLink" v-on:click="toggleMenu">
-      <router-link to="/dashbard"><i class="fa fa-table"></i>
+      <router-link to="/dashboard"><i class="fa fa-bar-chart"></i>
         <span class="page">Dashboard</span>
       </router-link>
     </li>

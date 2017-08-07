@@ -203,7 +203,7 @@ export default {
   },
   methods: {
     isLoggedIn () {
-      return this.username != null && this.token != null
+      return this.username !== null && this.token !== null
     },
     logout () {
       this.$store.commit('SET_USERNAME', null)
