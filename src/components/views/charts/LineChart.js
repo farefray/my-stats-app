@@ -5,7 +5,14 @@ export default Line.extend({
   created () { },
   mounted () {
     this.$nextTick(() => {
-      this.renderChart(this.data, {responsive: true, maintainAspectRatio: false})
+      this.renderChart(this.data, {
+        responsive: true,
+        maintainAspectRatio: false,
+        hover: {
+          // Overrides the global setting
+          mode: 'index'
+        }
+      })
     })
   },
   computed: {

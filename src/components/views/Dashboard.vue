@@ -3,8 +3,8 @@
     <section class="content">
         <!-- Main row -->
         <div class="row">
+            <button @click="doubleThis()">asdasd</button>
             <line-example :chart-data="dataPoints"></line-example>
-
         </div>
         <!-- /.row -->
     </section>
@@ -38,17 +38,56 @@
       })
     },
     methods: {
-      getRandomInt () {
-        return Math.floor(Math.random() * (50 - 5 + 1)) + 5
-      },
-      fillData () {
+      doubleThis () {
+        let labels = []
+        let data = []
+        let balance = 0
+        for (let i = 0; i <= this.bets.length - 1; i++) {
+          let bet = this.bets[i]
+          labels.push(bet.date)
+
+          if (bet.status === 'win') {
+            balance += bet.stake * bet.odds - bet.stake + 20
+          } else {
+            balance -= bet.stake * bet.odds - bet.stake
+          }
+          data.push(balance)
+        }
+
         this.dataPoints = {
-          labels: ['January' + this.getRandomInt(), 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+          labels: labels,
           datasets: [
             {
               label: 'Data One',
               backgroundColor: '#f87979',
-              data: [88, 77, this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt(), this.getRandomInt()]
+              data: data
+            }
+          ]
+        }
+      },
+      fillData () {
+        let labels = []
+        let data = []
+        let balance = 0
+        for (let i = 0; i <= this.bets.length - 1; i++) {
+            let bet = this.bets[i]
+            labels.push(bet.date)
+
+            if (bet.status === 'win') {
+              balance += bet.stake * bet.odds - bet.stake
+            } else {
+              balance -= bet.stake * bet.odds - bet.stake
+            }
+            data.push(balance)
+        }
+
+        this.dataPoints = {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Data One',
+              backgroundColor: '#f87979',
+              data: data
             }
           ]
         }
