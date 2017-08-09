@@ -25,8 +25,7 @@
       chartdata: function (val) {
         console.log(this.chartdata)
         console.log(val)
-        let asd = true
-        if (val === null || asd) {
+        if (val === null) {
           return
         }
 
@@ -223,24 +222,7 @@
               borderWidth: 12
             }
           },
-          data: [11, 22, 33, 44, 55, 66],
-          markPoint: {
-            data: [
-              {
-                name: 'asdas',
-                coord: ['5', 33.4],
-                value: 2300,
-                itemStyle: {
-                  normal: { color: 'rgb(41,60,85)' }
-                }
-              }
-            ],
-            tooltip: {
-              formatter: function (param) {
-                return 'asd'
-              }
-            }
-          }
+          data: [11, 22, 33, 44, 55, 66]
         }
         ]
       },

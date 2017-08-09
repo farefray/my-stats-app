@@ -57,6 +57,7 @@ export default {
       this.rawProcessed = true
       this.parsedBets = parsedBets
       console.log('parsed bets')
+      console.log(parsedBets)
     },
     updateRaw () {
       let rowData = []
@@ -73,15 +74,16 @@ export default {
           // thats new row
           // TODO what if next row assidently is same length
           rowData.push(fullElement)
-          if (Object.keys(longestElement).length < Object.keys(fullElement).length) {
-            longestElement = fullElement
-          }
-
           fullElement = {}
           letNumber = 97
         }
 
         fullElement[String.fromCharCode(letNumber)] = {value: el, type: 'none'}
+
+        if (Object.keys(longestElement).length < Object.keys(fullElement).length) {
+          longestElement = fullElement
+        }
+
         letNumber++
       }
 

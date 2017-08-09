@@ -16,7 +16,7 @@ const BetSchema = new mongoose.Schema({
     ref: 'User'
   },
   date: {
-    type: Date
+    type: Number
   },
   type: {
     type: [{

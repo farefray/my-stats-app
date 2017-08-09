@@ -42,6 +42,7 @@ import StoreBet from './bets/StoreBet'
 import ParseBets from './bets/parser/ParseBets'
 import api from '../../api'
 import UIBet from '../../objects/uibet'
+import moment from 'moment'
 
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
@@ -71,8 +72,7 @@ function getContextMenuItems (params) {
 }
 
 function dateFormatter (params) {
-  console.log(params)
-    return params.value + ' ;)'
+    return moment.unix(params.value).format('MMM Do YYYY, H:mm:ss')
 }
 
 export default {
@@ -120,7 +120,7 @@ export default {
             }
 
             case 'date': {
-              header['cellFormatter'] = dateFormatter
+              header['cellRenderer'] = dateFormatter
               console.log(header)
               break
             }

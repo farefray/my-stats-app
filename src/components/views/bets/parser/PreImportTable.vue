@@ -3,7 +3,7 @@
     <ag-grid-vue style="width: 100%; height: 350px;" class="ag-blue"
     :gridOptions="gridOptions"
     :columnDefs="columnDefs"
-    :rowData="bets"
+    :rowData="displayBets"
     :rowDataChanged="rowDataChanged">
     </ag-grid-vue>
     <button class="btn btn-success" v-on:click="importBets()">Go</button>
@@ -16,9 +16,11 @@ import UIBet from '../../../../objects/uibet'
 import {LicenseManager} from 'ag-grid-enterprise/main'
 import api from '../../../../api'
 import PickEditorComponent from './PickEditorComponent.vue'
+import moment from 'moment'
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
 var gridOptions = {}
+var _ = require('lodash')
 
 export default {
   name: 'PreImportTable',
@@ -42,7 +44,7 @@ export default {
   },
   methods: {
     importBets () {
-        let _this = this
+      let _this = this
       for (var i = 0; i < this.bets.length; i++) {
         api.request('post', 'bets', this.bets[i]).then(response => {
             window.console.log(response)
@@ -88,39 +90,68 @@ export default {
       console.log('preimport')
       let newBet = new UIBet()
       var baseHeaders = []
+      var _this = this
       Object.keys(newBet).forEach(function (key) {
         let header = {
             headerName: key,
             field: key,
             menuTabs: [],
-            editable: true
+            editable: true,
+            newValueHandler: function (params) {
+              console.log(params)
+              console.log(_this.bets[params.node.childIndex])
+              _this.bets[params.node.childIndex]['' + key + ''] = params.newValue
+            }
         }
 
-        if (key === 'website') {
+        if (key === 'userid') {
+          return
+        }
+
+        switch (key) {
+          case 'website': {
             header['editable'] = true
             header['cellEditor'] = 'select'
             header['cellEditorParams'] = {
-                values: ['1xbet',
-                        '1xbet',
-                        '1xbet']
+              values: ['1xbet',
+                '1xbet',
+                '1xbet']
             }
             header['newValueHandler'] = function (params) {
-                params.api.forEachNode(function (rowNode, index) {
-                    rowNode.data.website = '1xbet'
-                    console.log(rowNode.data.website)
-                    console.log(index)
-                })
+              params.api.forEachNode(function (rowNode, index) {
+                rowNode.data.website = '1xbet'
+                console.log(rowNode.data.website)
+                console.log(index)
+              })
             }
-        } else if (key === 'pick') {
+
+            break
+          }
+
+          case 'pick': {
             header['editable'] = true
             header['cellEditorFramework'] = PickEditorComponent
+          }
         }
+
+        // TODO newValueHandler for each value change, validate changed data and set for this.bets
 
         baseHeaders.push(header)
       })
 
       this.columnDefs = baseHeaders
       this.bets = this.parsedBets
+    }
+  },
+  computed: {
+    displayBets: function () {
+      let tmp = _.cloneDeep(this.bets)
+      for (let i = 0; i < tmp.length; i++) {
+        tmp[i].date = moment.unix(tmp[i].date).format('MMM Do YYYY, H:mm:ss')
+        delete tmp[i].userid
+      }
+
+      return tmp
     }
   }
 }

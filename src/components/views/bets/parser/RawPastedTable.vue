@@ -14,6 +14,7 @@ import UIBet from '../../../../objects/uibet'
 import {LicenseManager} from 'ag-grid-enterprise/main'
 import Chrono from 'chrono-node'
 import ParserCellComponent from './ParserCellComponent'
+import moment from 'moment'
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
 function getMainMenuItems (params) {
@@ -36,12 +37,14 @@ function getMainMenuItems (params) {
                 let validateDate = Chrono.parse(value)
                 let formattedValue = ''
                 if (validateDate.length > 0) {
-                  for (var j = 0; j <= validateDate.length - 1; j++) {
+                  for (let j = 0; j <= validateDate.length - 1; j++) {
                     formattedValue += validateDate[j].text
                   }
 
+                  let momentDate = moment(formattedValue)
                   currentData[i]['' + this.row + ''].type = key
-                  currentData[i]['' + this.row + ''].value = (formattedValue)
+                  currentData[i]['' + this.row + ''].storeValue = momentDate.unix()
+                  currentData[i]['' + this.row + ''].value = momentDate.format()
                   console.log(Date.parse(Chrono.parseDate(currentData[i]['' + this.row + ''].value)))
                 } else {
                   console.log('failed')
@@ -128,8 +131,7 @@ function getMainMenuItems (params) {
 }
 
 var gridOptions = {
-  getMainMenuItems: getMainMenuItems,
-  customItem: 'test'
+  getMainMenuItems: getMainMenuItems
 }
 
 export default {
@@ -184,6 +186,7 @@ export default {
         this.active = true
       }
 
+      console.log(parsedBets)
       this.$emit('parsed', parsedBets)
     }
   }

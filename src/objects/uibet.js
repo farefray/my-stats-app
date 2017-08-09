@@ -1,7 +1,7 @@
 export default class UIBet {
   id = '';
   userid = 1;
-  date = '1999-12-10T00:00:00';
+  date = 0;
   type = '';
   odds = 1;
   stake = 0;
@@ -36,7 +36,7 @@ export default class UIBet {
     Object.keys(rawData).forEach(function (key) {
       let rawBetData = rawData[key]
       if (rawBetData.type !== 'none') {
-        _this[rawBetData.type] = rawBetData.value
+        _this[rawBetData.type] = rawBetData.storeValue ? rawBetData.storeValue : rawBetData.value
       }
     })
   }
