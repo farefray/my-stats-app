@@ -3,8 +3,8 @@
     <section class="content">
         <!-- Main row -->
         <div class="row">
-            <button @click="doubleThis()">asdasd</button>
-            <line-example :chart-data="dataPoints"></line-example>
+            <button @click="refreshChart()">Refresh</button>
+            <line-example :chartdata="dataPoints"></line-example>
         </div>
         <!-- /.row -->
     </section>
@@ -15,7 +15,7 @@
   // import Chart from 'chart.js'
   import api from '../../api'
   import store from '../../store'
-  import LineExample from './charts/LineChart.js'
+  import LineExample from './charts/LineChart'
 
   export default {
     name: 'Dashboard',
@@ -38,32 +38,8 @@
       })
     },
     methods: {
-      doubleThis () {
-        let labels = []
-        let data = []
-        let balance = 0
-        for (let i = 0; i <= this.bets.length - 1; i++) {
-          let bet = this.bets[i]
-          labels.push(bet.date)
-
-          if (bet.status === 'win') {
-            balance += bet.stake * bet.odds - bet.stake + 20
-          } else {
-            balance -= bet.stake * bet.odds - bet.stake
-          }
-          data.push(balance)
-        }
-
-        this.dataPoints = {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Data One',
-              backgroundColor: '#f87979',
-              data: data
-            }
-          ]
-        }
+      refreshChart () {
+        this.fillData()
       },
       fillData () {
         let labels = []
@@ -78,18 +54,14 @@
             } else {
               balance -= bet.stake * bet.odds - bet.stake
             }
+
             data.push(balance)
         }
 
         this.dataPoints = {
           labels: labels,
-          datasets: [
-            {
-              label: 'Data One',
-              backgroundColor: '#f87979',
-              data: data
-            }
-          ]
+          data: data,
+          balance: balance
         }
       }
     },
