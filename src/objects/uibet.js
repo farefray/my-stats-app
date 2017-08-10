@@ -58,7 +58,7 @@ export default class UIBet {
     return returnArray
   }
 
-  validate (key, value) {
+  validate (key, value, strict = false) {
     switch (key) {
       case 'date': {
         let validateDate = Chrono.parse(value)
@@ -96,6 +96,10 @@ export default class UIBet {
       }
 
       case 'participants': {
+        if (value.indexOf(' - ') === false) {
+          return false
+        }
+
         let participants = value.split(' - ')
         if (!participants.length || participants.length === 0) {
           return false
@@ -165,6 +169,10 @@ export default class UIBet {
 
       default: {
         // no rules
+        if (strict === true) {
+          return false
+        }
+
         return {
           type: key,
           value: value

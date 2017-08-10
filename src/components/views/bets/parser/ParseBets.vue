@@ -7,7 +7,7 @@
                        placeholder=""></textarea>
     </panel>
     <panel :is-open="rawPasted" header="Help us to parse your data" disabled="disabled">
-      <raw-pasted-table :rowData="rowData" v-on:parsed="processParced"></raw-pasted-table>
+      <raw-pasted-table :rowData="rowData" v-on:parsed="processParced" v-if="rawPasted"></raw-pasted-table>
     </panel>
     <panel :is-open="false" header="Results preview">
       <pre-import-table :parsedBets="parsedBets" v-on:imported="onImported"></pre-import-table>

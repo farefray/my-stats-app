@@ -62,7 +62,8 @@ export default {
       columnDefs: [],
       elements: [],
       resultedBets: [],
-      active: false
+      active: false,
+      longestElement: null
     }
   },
   components: {
@@ -71,6 +72,27 @@ export default {
   mounted: function () {
     console.log('mounted')
     this.rowDataChanged()
+
+    if (this.longestElement !== null) {
+      // lets try to auto recognize fields
+      console.log(this.rowData)
+      let betExample = new UIBet()
+      let _this = this
+      Object.keys(this.longestElement).forEach(function (key) {
+        Object.keys(betExample).forEach(function (kkey) {
+          // TODO
+          // validate every field for every possible value and set it (if not yet set)
+          let validated = betExample.validate(kkey, _this.longestElement[key].value, true)
+          if (validated !== false) {
+            // currentData[i][key] = validated
+            // currentData[i]['' + this.row + ''] = betExample.validate(key, value)
+            console.log('VALIDATED' + kkey)
+            console.log(_this.longestElement[key])
+            console.log(validated)
+          }
+        })
+      })
+    }
   },
   methods: {
     rowDataChanged () {
@@ -105,6 +127,7 @@ export default {
         this.active = true
       }
 
+      this.longestElement = longestElement
       console.log(parsedBets)
       this.$emit('parsed', parsedBets)
     }
