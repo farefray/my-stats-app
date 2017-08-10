@@ -1,3 +1,6 @@
+import Chrono from 'chrono-node'
+import moment from 'moment'
+
 export default class UIBet {
   id = '';
   userid = 1;
@@ -53,5 +56,120 @@ export default class UIBet {
     })
 
     return returnArray
+  }
+
+  validate (key, value) {
+    switch (key) {
+      case 'date': {
+        let validateDate = Chrono.parse(value)
+        if (validateDate.length > 0) {
+          let formattedValue = ''
+          for (let j = 0; j <= validateDate.length - 1; j++) {
+            formattedValue += validateDate[j].text
+          }
+
+          let momentDate = moment(formattedValue)
+          return {
+            type: key,
+            storeValue: momentDate.unix(),
+            value: momentDate.format()
+          }
+        }
+
+        return false
+      }
+
+      case 'discipline': {
+        if (value.toLowerCase().indexOf('dota 2') >= 0 || value.toLowerCase().indexOf('dota2') >= 0) {
+          return {
+            type: key,
+            value: 'dota 2'
+          }
+        } else if (value.toLowerCase().indexOf('starcraft 2') >= 0 || value.toLowerCase().indexOf('sc2') >= 0) {
+          return {
+            type: key,
+            value: 'starcraft 2'
+          }
+        }
+
+        return false
+      }
+
+      case 'participants': {
+        let participants = value.split(' - ')
+        if (!participants.length || participants.length === 0) {
+          return false
+        }
+
+        let participantsArray = []
+        participants.forEach(function (key) {
+          participantsArray.push(key.split('(')[0].trim())
+        })
+
+        return {
+          type: key,
+          value: participantsArray
+        }
+      }
+
+      case 'stake': {
+        let stake = parseInt(value)
+        if (stake > 0) {
+          return {
+            type: key,
+            value: stake
+          }
+          // TODO what if currency is in the same field
+          // lets guess currency
+          /*  */
+        }
+
+        return false
+      }
+
+      case 'currency': {
+        // TODO
+        /* let currency = typeof value === 'string' ? value.split(' ')[1] : false
+        if (currency) {
+          currentData[i]['x'] = {}
+          currentData[i]['x'].value = currency
+          currentData[i]['x'].type = 'currency'
+        } */
+
+        return false
+      }
+
+      case 'type': {
+        let types = ['single', 'multi', 'accumulator', 'express']
+        if (types.indexOf(value.toLowerCase()) !== -1) {
+          return {
+            type: key,
+            value: value.toLowerCase() === 'single' ? 'single' : 'multi'
+          }
+        }
+
+        return false
+      }
+
+      case 'status': {
+        let statuses = ['win', 'loss', 'pending']
+        if (statuses.indexOf(value.toLowerCase()) !== -1) {
+          return {
+            type: key,
+            value: value.toLowerCase()
+          }
+        }
+
+        return false
+      }
+
+      default: {
+        // no rules
+        return {
+          type: key,
+          value: value
+        }
+      }
+    }
   }
 }

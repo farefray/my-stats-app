@@ -33,7 +33,8 @@ export default {
       elements: [],
       resultedBets: [],
       rawProcessed: false,
-      parsedBets: null
+      parsedBets: null,
+      rawPasted: false
     }
   },
   components: {
@@ -41,13 +42,6 @@ export default {
     'pre-import-table': () => import('./PreImportTable'),
     accordion,
     panel
-  },
-  beforeMount () {
-  },
-  computed: {
-    rawPasted: function () {
-      return this.raw !== ''
-    }
   },
   methods: {
     onImported () {
@@ -141,6 +135,11 @@ export default {
 
       console.log(rowData)
       this.rowData = rowData
+
+      let _this = this
+      setTimeout(function () {
+        _this.rawPasted = true
+      }, 500)
     }
   }
 }
