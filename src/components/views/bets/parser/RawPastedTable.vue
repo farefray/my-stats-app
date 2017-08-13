@@ -15,43 +15,41 @@ import {LicenseManager} from 'ag-grid-enterprise/main'
 import ParserCellComponent from './ParserCellComponent'
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
-var gridOptions = {
-  getMainMenuItems: function (params) {
-    let betExample = new UIBet()
-    let menuItems = []
-    Object.keys(betExample).forEach(function (key) {
-      menuItems.push({
-          name: key,
-          row: params.column.colId,
-          params: params,
-          action: function (p) {
-            let currentData = this.params.api.gridCore.gridOptions.rowData
-            for (let i = 0; i <= currentData.length - 1; i++) {
-              let value = currentData[i]['' + this.row + ''].value
-              let validated = betExample.validate(key, value)
-              if (validated !== false) {
-                currentData[i]['' + this.row + ''] = betExample.validate(key, value)
-              } else {
-                // Error need to be displayed
-                console.log('Field not validated')
-              }
-            }
-
-            this.params.api.dispatchEvent('rowDataChanged')
-          }
-      })
-    })
-
-    return menuItems
-  }
-}
-
 export default {
   name: 'RawPastedTable',
   props: ['rowData'],
   data () {
     return {
-      gridOptions: gridOptions,
+      gridOptions: {
+        getMainMenuItems: function (params) {
+          let betExample = new UIBet()
+          let menuItems = []
+          Object.keys(betExample).forEach(function (key) {
+            menuItems.push({
+                name: key,
+                row: params.column.colId,
+                params: params,
+                action: function () {
+                  let currentData = this.params.api.gridCore.gridOptions.rowData
+                  for (let i = 0; i <= currentData.length - 1; i++) {
+                    let value = currentData[i]['' + this.row + ''].value
+                    let validated = betExample.validate(key, value)
+                    if (validated !== false) {
+                      currentData[i]['' + this.row + ''] = betExample.validate(key, value)
+                    } else {
+                      // Error need to be displayed
+                      console.log('Field not validated')
+                    }
+                  }
+
+                  this.params.api.dispatchEvent('rowDataChanged')
+                }
+            })
+          })
+
+          return menuItems
+        }
+      },
       columnDefs: [],
       elements: [],
       resultedBets: [],
@@ -62,11 +60,11 @@ export default {
     'ag-grid-vue': AgGridVue
   },
   mounted: function () {
-    this.loadData()
+    this.updateHeaders()
     this.rowDataChanged()
   },
   methods: {
-    loadData () {
+    updateHeaders () {
       let rows = this.rowData
       let longestElement = {}
       Object.keys(rows).forEach(function (key) {
@@ -95,6 +93,7 @@ export default {
           let validated = betExample.validate(kkey, longestElement[key].value, true)
           if (validated !== false) {
             header['autovalidate'] = kkey
+            header['headerName'] = kkey
           }
         })
 
@@ -103,7 +102,6 @@ export default {
 
       if (Object.keys(longestElement).length > 0) {
         this.columnDefs = baseHeaders
-        this.active = true
       }
     },
     rowDataChanged () {
@@ -118,6 +116,8 @@ export default {
       })
 
       console.log(parsedBets)
+      this.updateHeaders()
+      this.active = true
       this.$emit('parsed', parsedBets)
     }
   }
