@@ -15,38 +15,35 @@ import {LicenseManager} from 'ag-grid-enterprise/main'
 import ParserCellComponent from './ParserCellComponent'
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
-function getMainMenuItems (params) {
-  let betExample = new UIBet()
-  let menuItems = []
-  console.log(params)
-  Object.keys(betExample).forEach(function (key) {
-    menuItems.push({
-        name: key,
-        row: params.column.colId,
-        params: params,
-        action: function (p) {
-          console.log(this.row + ' picked ' + key)
-          console.log(this)
-          let currentData = this.params.api.gridCore.gridOptions.rowData
-          for (let i = 0; i <= currentData.length - 1; i++) {
-            let value = currentData[i]['' + this.row + ''].value
-            let validated = betExample.validate(key, value)
-            if (validated !== false) {
-              currentData[i]['' + this.row + ''] = betExample.validate(key, value)
-            } else {
-              // Error need to be displayed
-              console.log('Field not validated')
+var gridOptions = {
+  getMainMenuItems: function (params) {
+    let betExample = new UIBet()
+    let menuItems = []
+    Object.keys(betExample).forEach(function (key) {
+      menuItems.push({
+          name: key,
+          row: params.column.colId,
+          params: params,
+          action: function (p) {
+            let currentData = this.params.api.gridCore.gridOptions.rowData
+            for (let i = 0; i <= currentData.length - 1; i++) {
+              let value = currentData[i]['' + this.row + ''].value
+              let validated = betExample.validate(key, value)
+              if (validated !== false) {
+                currentData[i]['' + this.row + ''] = betExample.validate(key, value)
+              } else {
+                // Error need to be displayed
+                console.log('Field not validated')
+              }
             }
+
+            this.params.api.dispatchEvent('rowDataChanged')
           }
-
-          this.params.api.dispatchEvent('rowDataChanged')
-        }
-        // icon: '<img src="../images/lab.png" style="width: 14px;"/>'
+      })
     })
-  })
 
-  menuItems.push('resetColumns')
-  return menuItems
+    return menuItems
+  }
 }
 
 export default {
@@ -54,9 +51,7 @@ export default {
   props: ['rowData'],
   data () {
     return {
-      gridOptions: {
-        getMainMenuItems: getMainMenuItems
-      },
+      gridOptions: gridOptions,
       columnDefs: [],
       elements: [],
       resultedBets: [],
@@ -67,7 +62,6 @@ export default {
     'ag-grid-vue': AgGridVue
   },
   mounted: function () {
-    console.log('mounted')
     this.loadData()
     this.rowDataChanged()
   },
@@ -92,7 +86,7 @@ export default {
           headerName: 'select',
           field: key,
           cellRendererFramework: ParserCellComponent,
-          menuTabs: ['']
+          menuTabs: ['generalMenuTab']
         }
 
         Object.keys(betExample).forEach(function (kkey) {
@@ -123,6 +117,7 @@ export default {
         parsedBets.push(newBet)
       })
 
+      console.log(parsedBets)
       this.$emit('parsed', parsedBets)
     }
   }
