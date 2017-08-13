@@ -96,12 +96,12 @@ export default class UIBet {
       }
 
       case 'participants': {
-        if (value.indexOf(' - ') === false) {
+        if (!value.indexOf(' - ')) {
           return false
         }
 
         let participants = value.split(' - ')
-        if (!participants.length || participants.length === 0) {
+        if (!participants.length || participants.length === 1) {
           return false
         }
 
