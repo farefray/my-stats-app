@@ -59,6 +59,17 @@ export default class UIBet {
   }
 
   validate (key, value, strict = false) {
+    if (!value || !value.length) {
+      if (strict === true) {
+        return false
+      }
+
+      return {
+        type: key,
+        value: value
+      }
+    }
+
     switch (key) {
       case 'date': {
         let validateDate = Chrono.parse(value)
@@ -157,7 +168,7 @@ export default class UIBet {
 
       case 'status': {
         let statuses = ['win', 'loss', 'pending']
-        if (statuses.indexOf(value.toLowerCase()) !== -1) {
+        if (value && value.length > 0 && statuses.indexOf(value.toLowerCase()) !== -1) {
           return {
             type: key,
             value: value.toLowerCase()

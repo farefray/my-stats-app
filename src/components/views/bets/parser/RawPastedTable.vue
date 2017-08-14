@@ -13,6 +13,7 @@ import {AgGridVue} from 'ag-grid-vue'
 import UIBet from '../../../../objects/uibet'
 import {LicenseManager} from 'ag-grid-enterprise/main'
 import ParserCellComponent from './ParserCellComponent'
+const bows = require('bows')
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
 export default {
@@ -35,6 +36,7 @@ export default {
                     let value = currentData[i]['' + this.row + ''].value
                     let validated = betExample.validate(key, value)
                     if (validated !== false) {
+                      console.log(this.row)
                       currentData[i]['' + this.row + ''] = betExample.validate(key, value)
                     } else {
                       // Error need to be displayed
@@ -79,6 +81,7 @@ export default {
       //  also lets try to auto recognize fields
       let betExample = new UIBet()
       var baseHeaders = []
+      var alreadyValidated = []
       Object.keys(longestElement).forEach(function (key) {
         let header = {
           headerName: 'select',
@@ -87,14 +90,30 @@ export default {
           menuTabs: ['generalMenuTab']
         }
 
+        let tryingToValidate = longestElement[key].value
+        let letNumber = 97
         Object.keys(betExample).forEach(function (kkey) {
-          // TODO
           // validate every field for every possible value and set it (if not yet set)
-          let validated = betExample.validate(kkey, longestElement[key].value, true)
-          if (validated !== false) {
-            header['autovalidate'] = kkey
-            header['headerName'] = kkey
+          if (alreadyValidated.indexOf(kkey) === -1 && longestElement[key].type === 'none') {
+            console.log(tryingToValidate)
+            let validated = betExample.validate(kkey, tryingToValidate, true)
+            if (validated !== false) {
+              header['autovalidate'] = kkey
+              header['headerName'] = kkey
+
+              for (let i = 0; i <= rows.length - 1; i++) {
+                rows[i][String.fromCharCode(letNumber)] = validated
+                console.log('VALIDATED')
+                console.log(validated.value)
+              }
+
+              var log = bows('My App', '[ChuckNorris]')
+              log('Kicks ass!')
+              alreadyValidated.push(kkey)
+            }
           }
+
+          letNumber++
         })
 
         baseHeaders.push(header)
