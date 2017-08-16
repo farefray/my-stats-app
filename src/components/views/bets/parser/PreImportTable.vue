@@ -17,7 +17,9 @@ import {LicenseManager} from 'ag-grid-enterprise/main'
 import api from '../../../../api'
 import PickEditorComponent from './PickEditorComponent.vue'
 import moment from 'moment'
+const bows = require('bows')
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
+var log = bows('PreImportTable')
 
 var gridOptions = {}
 var _ = require('lodash')
@@ -41,6 +43,8 @@ export default {
   mounted: function () {
     console.log('mounted preimport')
     console.log(this.parsedBets)
+    this.updateHeaders()
+    this.bets = this.parsedBets
   },
   methods: {
     importBets () {
@@ -87,7 +91,10 @@ export default {
       }
     },
     rowDataChanged () {
-      console.log('preimport')
+      log('data changed')
+    },
+    updateHeaders () {
+      log('updaet headers')
       let newBet = new UIBet()
       var baseHeaders = []
       var _this = this
@@ -100,6 +107,7 @@ export default {
             newValueHandler: function (params) {
               console.log(params)
               console.log(_this.bets[params.node.childIndex])
+              console.log(key)
               _this.bets[params.node.childIndex]['' + key + ''] = params.newValue
             }
         }
@@ -140,7 +148,6 @@ export default {
       })
 
       this.columnDefs = baseHeaders
-      this.bets = this.parsedBets
     }
   },
   computed: {

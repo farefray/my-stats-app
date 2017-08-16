@@ -23,7 +23,7 @@
                 return true
             },
             onClick (val) {
-                this.value = val
+                this.value = [val]
                 this.params.api.stopEditing()
 
                 // set winners or losers
@@ -31,11 +31,12 @@
                 thisBet.winners = []
                 for (let i = 0; i <= thisBet.participants.length - 1; i++) {
                     if (thisBet.status.toLowerCase() === 'win' && thisBet.participants[i] === val) {
-                        thisBet.winners.push(thisBet.participants[i])
+                        this.params.api.gridCore.gridOptions.rowData[this.params.rowIndex].winners.push(thisBet.participants[i])
                     } else if (thisBet.status.toLowerCase() === 'loss' && thisBet.participants[i] !== val) {
-                        thisBet.winners.push(thisBet.participants[i])
+                        this.params.api.gridCore.gridOptions.rowData[this.params.rowIndex].winners.push(thisBet.participants[i])
                     }
                 }
+                console.log(this.params.api.gridCore.gridOptions.rowData)
             }
          },
         created () {

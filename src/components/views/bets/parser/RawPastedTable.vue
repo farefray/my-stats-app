@@ -118,6 +118,7 @@ export default {
       //  also lets try to auto recognize fields
       var baseHeaders = []
       Object.keys(longestElement).forEach(function (key) {
+        log(longestElement[key].type)
         let header = {
           headerName: 'select',
           field: key,
