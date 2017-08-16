@@ -1,5 +1,7 @@
 import Chrono from 'chrono-node'
 import moment from 'moment'
+const bows = require('bows')
+var log = bows('UIBet')
 
 export default class UIBet {
   id = '';
@@ -72,18 +74,24 @@ export default class UIBet {
 
     switch (key) {
       case 'date': {
-        let validateDate = Chrono.parse(value)
-        if (validateDate.length > 0) {
-          let formattedValue = ''
-          for (let j = 0; j <= validateDate.length - 1; j++) {
-            formattedValue += validateDate[j].text
-          }
+        // 1xbet hacks
+        if (value.indexOf('from ')) {
+          value = value.replace('from ', '')
+        }
 
-          let momentDate = moment(formattedValue)
+        if (value.indexOf(' | ')) {
+          value = value.replace(' | ', ' ') + ':00'
+        }
+
+        let validateDate = Chrono.parseDate(value)
+        log(validateDate)
+        if (validateDate && validateDate !== null) {
+          log(validateDate)
+          let momentDate = moment(validateDate)
           return {
             type: key,
             storeValue: momentDate.unix(),
-            value: momentDate.format()
+            value: momentDate.format('D MMM HH:mm')
           }
         }
 
@@ -96,7 +104,7 @@ export default class UIBet {
             type: key,
             value: 'dota 2'
           }
-        } else if (value.toLowerCase().indexOf('starcraft 2') >= 0 || value.toLowerCase().indexOf('sc2') >= 0) {
+        } else if (value.toLowerCase().indexOf('starcraft 2') >= 0 || value.toLowerCase().indexOf('sc2') >= 0 || value.toLowerCase().indexOf('starCraft II') >= 0) {
           return {
             type: key,
             value: 'starcraft 2'
@@ -172,6 +180,17 @@ export default class UIBet {
           return {
             type: key,
             value: value.toLowerCase()
+          }
+        }
+
+        return false
+      }
+
+      case 'odds': {
+        if ((/^\d+.\d+$/).test(value)) {
+          return {
+            type: key,
+            value: value
           }
         }
 

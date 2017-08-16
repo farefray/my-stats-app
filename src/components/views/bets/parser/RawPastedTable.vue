@@ -15,12 +15,14 @@ import {LicenseManager} from 'ag-grid-enterprise/main'
 import ParserCellComponent from './ParserCellComponent'
 const bows = require('bows')
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
+var log = bows('RawPastedTable')
 
 export default {
   name: 'RawPastedTable',
   props: ['rowData'],
   data () {
     return {
+      longestElement: null,
       gridOptions: {
         getMainMenuItems: function (params) {
           let betExample = new UIBet()
@@ -64,8 +66,43 @@ export default {
   mounted: function () {
     this.updateHeaders()
     this.rowDataChanged()
+    this.autoValidate()
   },
   methods: {
+    autoValidate () {
+      let betExample = new UIBet()
+      let alreadyValidated = []
+      let letNumber = 97
+      let _this = this
+      let newHeaders = this.columnDefs
+      for (let i = 0; i < this.columnDefs.length; i++) {
+        let key = this.columnDefs[i].key
+        let letteredIndex = String.fromCharCode(letNumber)
+        let tryingToValidate = this.longestElement[letteredIndex].value
+        Object.keys(betExample).forEach(function (kkey) {
+          // validate every field for every possible value and set it (if not yet set)
+          if (alreadyValidated.indexOf(kkey) === -1 && _this.longestElement[letteredIndex].type === 'none') {
+            let validated = betExample.validate(kkey, tryingToValidate, true)
+            if (validated !== false) {
+              for (let j = 0; j <= _this.rowData.length - 1; j++) {
+                if (_this.rowData[j][letteredIndex].type === 'none') {
+                  _this.rowData[j][letteredIndex] = betExample.validate(kkey, _this.rowData[j][letteredIndex].value, true)
+                  newHeaders[j]['headerName'] = kkey
+                }
+              }
+
+              alreadyValidated.push(kkey)
+            }
+          }
+        })
+
+        letNumber++
+      }
+
+      log(newHeaders)
+      this.columnDefs = newHeaders
+      this.gridOptions.columnDefs = newHeaders
+    },
     updateHeaders () {
       let rows = this.rowData
       let longestElement = {}
@@ -79,9 +116,7 @@ export default {
 
       // lets first the longest, which supposed to be the one with max items
       //  also lets try to auto recognize fields
-      let betExample = new UIBet()
       var baseHeaders = []
-      var alreadyValidated = []
       Object.keys(longestElement).forEach(function (key) {
         let header = {
           headerName: 'select',
@@ -90,36 +125,11 @@ export default {
           menuTabs: ['generalMenuTab']
         }
 
-        let tryingToValidate = longestElement[key].value
-        let letNumber = 97
-        Object.keys(betExample).forEach(function (kkey) {
-          // validate every field for every possible value and set it (if not yet set)
-          if (alreadyValidated.indexOf(kkey) === -1 && longestElement[key].type === 'none') {
-            console.log(tryingToValidate)
-            let validated = betExample.validate(kkey, tryingToValidate, true)
-            if (validated !== false) {
-              header['autovalidate'] = kkey
-              header['headerName'] = kkey
-
-              for (let i = 0; i <= rows.length - 1; i++) {
-                rows[i][String.fromCharCode(letNumber)] = validated
-                console.log('VALIDATED')
-                console.log(validated.value)
-              }
-
-              var log = bows('My App', '[ChuckNorris]')
-              log('Kicks ass!')
-              alreadyValidated.push(kkey)
-            }
-          }
-
-          letNumber++
-        })
-
         baseHeaders.push(header)
       })
 
       if (Object.keys(longestElement).length > 0) {
+        this.longestElement = longestElement
         this.columnDefs = baseHeaders
       }
     },
