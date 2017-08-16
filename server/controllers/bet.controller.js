@@ -67,7 +67,7 @@ function update(req, res, next) {
  */
 function list(req, res, next) {
   const username = req.body.userid
-  const { limit = 50, skip = 0, user = username } = req.query;
+  const { limit = 500, skip = 0, user = username } = req.query;
   Bet.list({ limit, skip })
     .then(bets => res.json(bets))
     .catch(e => next(e));
