@@ -46,9 +46,20 @@
           backgroundColor: 'rgba(137,189,125,0.1)',
           tooltip: {
             show: true,
-            formatter: function (params) {
+            formatter: function (params, ticket, callback) {
               console.log(params)
-              return '{b0}: {c0}<br />{b1}: {c1}'
+              let cl = params[0].data.bet.status === 'win' ? 'green' : 'red'
+              let profit = (params[0].data.bet.status === 'win' ? ('+ ' + (params[0].data.bet.stake * params[0].data.bet.odds - params[0].data.bet.stake)) : ('- ' + params[0].data.bet.stake))
+
+              let res = '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background-color:' + cl + ';margin-right:5px;"></span>' + params[0].data.bet.discipline +
+                '<br/>' +
+                params[0].data.bet.participants[0] + ' vs ' + params[0].data.bet.participants[1] +
+                '<br/>' +
+                params[0].data.bet.stake + ' ' + params[0].data.bet.currency + ' with ' + params[0].data.bet.odds + ' odds' +
+                '<br/>' +
+                profit + ' ' + params[0].data.bet.currency
+
+              return res
             },
             trigger: 'axis',
             axisPointer: {
@@ -168,7 +179,7 @@
           series: [{
             name: 'Timeline',
             type: 'line',
-            smooth: true,
+            smooth: false,
             symbol: 'circle',
             symbolSize: 5,
             showSymbol: false,

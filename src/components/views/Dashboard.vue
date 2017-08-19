@@ -46,16 +46,16 @@
         let data = []
         let balance = 0
         for (let i = 0; i <= this.bets.length - 1; i++) {
-            let bet = this.bets[i]
+            let bet = this.bets.reverse()[i]
             labels.push(bet.date)
 
             if (bet.status === 'win') {
               balance += bet.stake * bet.odds - bet.stake
             } else {
-              balance -= bet.stake * bet.odds - bet.stake
+              balance -= bet.stake
             }
 
-            data.push(balance)
+            data.push({value: balance, bet: bet})
         }
 
         this.dataPoints = {
