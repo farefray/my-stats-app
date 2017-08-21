@@ -46,25 +46,29 @@ const settings = {
     show: true,
     itemSize: 15,
     itemGap: 10,
+    right: 'middle',
     feature: {
       dataView: {
         title: 'View data',
         readOnly: false,
         show: true,
-        lang: ['data view', 'turn off', 'refresh'],
+        lang: ['List view', 'turn off', 'refresh'],
         optionToContent: function (opt) {
-          console.log(opt)
           let axisData = opt.xAxis[0].data
           let series = opt.series
+          console.log(axisData)
+          console.log(series)
           let table = '<table style="width:100%;text-align:center"><tbody><tr>' +
-            '<td>Time:</td>' +
-            '<td>' + series[0].name + '</td>' +
+            '<td>Date:</td>' +
+            '<td>Event</td>' +
             '</tr>'
 
           for (let i = 0, l = axisData.length; i < l; i++) {
             table += '<tr>' +
               '<td>' + axisData[i] + '</td>' +
-              '<td>' + series[0].data[i] + '</td>' +
+              '<td>' + series[0].data[i].bet.discipline + ' : ' + series[0].data[i].bet.participants[0] + ' vs ' + series[0].data[i].bet.participants[1] + '</td>' +
+              '<td>' + series[0].data[i].bet.status + '</td>' +
+              '<td>' + (series[0].data[i].bet.status === 'win' ? series[0].data[i].bet.stake * series[0].data[i].bet.odds - series[0].data[i].bet.stake : '-' + series[0].data[i].bet.stake) + '</td>' +
               '</tr>'
           }
 
@@ -74,7 +78,11 @@ const settings = {
       },
       magicType: {
         show: true,
-        type: ['line', 'bar']
+        type: ['line', 'bar'],
+        title: {
+          line: 'Switch to line view',
+          bar: 'Switch to bar view'
+        }
       },
       saveAsImage: {
         show: true,
@@ -154,7 +162,7 @@ const settings = {
     type: 'line',
     smooth: false,
     symbol: 'circle',
-    symbolSize: 4,
+    symbolSize: 6,
     showSymbol: true,
     showAllSymbol: true,
     lineStyle: {
@@ -178,7 +186,9 @@ const settings = {
     },
     itemStyle: {
       normal: {
-        color: 'rgb(137,189,27)'
+        color: function (params) {
+          return params.data.bet.status === 'win' ? '#00842b' : '#960208'
+        }
       }
     },
     data: []
