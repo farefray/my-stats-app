@@ -1,11 +1,11 @@
 <template>
   <section class="content">
-    <div class="row center-block" v-if="action == 'display_bets'">
+    <div class="row center-block" v-if="action == LIST">
       <h2>My stored bets</h2>
       <!--"Middle" type, four sub menu, animation introduced animate.css library, white mask, round custom switch button, default menu color configuration-->
       <circle-menu type="right" :number="2" animate="animated jello" mask='black' circle>
-        <a slot="item_1" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Store single bet" v-on:click="switchView('store_bet')"></a>
-        <a slot="item_2" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Prase multiple bets" v-on:click="switchView('parse_bets')"></a>
+        <a slot="item_1" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Store single bet" v-on:click="switchView(EDIT)"></a>
+        <a slot="item_2" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Prase multiple bets" v-on:click="switchView(PARSER)"></a>
       </circle-menu>
       <div class="col-md-12">
         <div class="box">
@@ -23,10 +23,10 @@
 
       </div>
     </div>
-    <div class="row center-block" v-if="action == 'store_bet'">
-      <store-bet v-on:done="switchView()"></store-bet>
+    <div class="row center-block" v-if="action == EDIT">
+      <store-bet v-on:cancel="switchView(LIST)"  v-on:done="switchView()" :betId="editing_bet"></store-bet>
     </div>
-    <div class="row center-block" v-if="action == 'parse_bets'">
+    <div class="row center-block" v-if="action == PARSER">
       <parse-bets v-on:done="switchView()"></parse-bets>
     </div>
   </section>
@@ -46,40 +46,24 @@ import moment from 'moment'
 
 LicenseManager.setLicenseKey('ag-Grid_Evaluation_License_Not_For_Production_1Devs21_September_2017__MTUwNTk0ODQwMDAwMA==888b81f2e21810c7ef5e399b5c5d1433')
 
-function getContextMenuItems (params) {
-    let result = [
-        { // custom item
-            name: 'Remove',
-            action: function () {
-                console.log(this)
-                console.log(params)
-                let bet = new UIBet(params.node.data)
-                api.request('delete', 'bets', {
-                    bet
-                }).then(response => {
-                    console.log(response)
-                    delete params.api.gridCore.gridOptions.rowData.splice(params.node.rowIndex, 1)
-                    params.api.refreshCells()
-                })
-            },
-            icon: '<img src="/static/img/remove.gif"/>'
-        }, // built in separator
-        'separator',
-        'copy'
-    ]
-
-    return result
-}
-
 function dateFormatter (params) {
     return moment.unix(params.value).format('MMM Do YYYY, H:mm:ss')
 }
+
+// Modes for view
+const LIST = 0
+const EDIT = 1
+const PARSER = 2
 
 export default {
   name: 'Bets',
   data (router) {
     return {
-      action: 'display_bets',
+      LIST: LIST,
+      EDIT: EDIT,
+      PARSER: PARSER,
+      action: LIST,
+      editing_bet: null,
       storedBets: null,
       gridOptions: null,
       columnDefs: null
@@ -92,8 +76,38 @@ export default {
     ParseBets
   },
   beforeMount () {
+    let _this = this
     this.gridOptions = {
-        getContextMenuItems: getContextMenuItems,
+        getContextMenuItems: function (params) {
+          return [
+            {
+              name: 'Edit',
+              action: function () {
+                console.log(params)
+                _this.action = EDIT
+                _this.editing_bet = params.node.data.id
+              },
+              icon: ''
+            },
+            'separator',
+            {
+              name: 'Remove',
+              action: function () {
+                console.log(this)
+                console.log(params)
+                let bet = new UIBet(params.node.data)
+                api.request('delete', 'bets', {
+                  bet
+                }).then(response => {
+                  console.log(response)
+                  delete params.api.gridCore.gridOptions.rowData.splice(params.node.rowIndex, 1)
+                  params.api.refreshCells()
+                })
+              },
+              icon: '<img src="/static/img/remove.gif"/>'
+            }
+          ]
+        },
         animateRows: true
     }
     this.createColumnDefs()
@@ -146,8 +160,8 @@ export default {
     },
     switchView (act) {
       console.log('switchView')
-      this.action = act !== undefined ? act : 'display_bets'
-      if (this.action === 'display_bets') {
+      this.action = act !== undefined ? act : LIST
+      if (this.action === LIST) {
         this.updateBets()
       }
     }
