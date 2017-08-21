@@ -17,9 +17,10 @@
     name: 'StoreBet',
     props: ['betId'],
     beforeMount () {
-      console.log(this.betId)
-      this.model.id = this.betId
-      this.schema.fields[0].disabled = true
+      if (this.betId) {
+        this.model.id = this.betId
+        this.schema.fields[0].disabled = true
+      }
     },
     data (router) {
       return {
@@ -31,7 +32,7 @@
           stake: 1.1,
           currency: 'USD',
           won: true,
-          participants: 'Execration - Rex Regum Qeon',
+          participants: ['Navi', 'Alliance'],
           pick: 'Execration',
           winners: 'Execration',
           discipline: 'Dota 2',
@@ -180,7 +181,7 @@
           betdata.user = store.state.username
           console.log(betdata)
           var bet = new UIBet(betdata)
-          bet.status = betdata.won ? 'win' : 'lost'
+          bet.status = betdata.won === true ? 'win' : 'loss'
           api.request('post', 'bets', bet).then(response => {
             window.console.log(response)
             if (response.status === 200 && response.data && response.data._id) {
