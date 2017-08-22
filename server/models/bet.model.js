@@ -56,25 +56,40 @@ BetSchema.statics = {
    * @param {number} limit - Limit number of bets to be returned.
    * @returns {Promise<Bet[]>}
    */
-  list({skip = 0, limit = 50, user = ''} = {}) {
+  list ({skip = 0, limit = 50, user = ''} = {}) {
     if (user !== '') {
       return this.find({
         _owner: user
       })
-        .sort({date})
+        .sort({ date: 'desc' })
         .skip(+skip)
         .limit(+limit)
         .exec()
     }
 
-  return this.find()
-    .sort({date: -1})
-    .skip(+skip)
-    .limit(+limit)
-    .exec()
+    return this.find()
+      .sort({ date: 'desc' })
+      .skip(+skip)
+      .limit(+limit)
+      .exec()
+  },
+
+  get (id) {
+    console.log('IN')
+    console.log(id)
+    return this.find({
+      id: id
+    })
+      .exec()
+      .then((bet) => {
+        if (bet) {
+          return bet
+        }
+        const err = new APIError('No such bet exists!', httpStatus.NOT_FOUND)
+        return Promise.reject(err)
+      })
   }
 }
-
 
 /**
  * @typedef User

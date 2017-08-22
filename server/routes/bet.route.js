@@ -22,7 +22,7 @@ router.route('/:betId')
 /** PUT /api/bets/:betId - Update user */
 .put(validate(paramValidation.updateBet), betCtrl.update)
 
-/** Load user when API with betId route parameter is hit */
+/** Load bet when API with betId route parameter is hit */
 router.param('betId', betCtrl.load)
 
 export default router

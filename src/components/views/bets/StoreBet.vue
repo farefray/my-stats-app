@@ -12,6 +12,7 @@
   import UIBet from '../../../objects/uibet'
   import api from '../../../api'
   import store from '../../../store'
+  const bows = require('bows')
 
   export default {
     name: 'StoreBet',
@@ -20,25 +21,41 @@
       if (this.betId) {
         this.model.id = this.betId
         this.schema.fields[0].disabled = true
+        let _this = this
+        api.request('get', 'bets/' + this.betId).then(response => {
+          window.console.log(response.data[0])
+          let bet = response.data[0]
+          if (bet) {
+            console.log(_this.model)
+            Object.keys(bet).forEach(function (column) {
+              if (_this.model[column] !== undefined) {
+                _this.model[column] = bet[column]
+              } else {
+                console.log(column)
+                console.log(_this.model[column])
+              }
+            })
+          }
+        })
       }
     },
-    data (router) {
+    data () {
       return {
         model: {
-          id: '№ 185800' + Math.random(1, 100),
-          date: '343242347', // TODO
+          id: '',
+          date: '',
           single: true,
-          odds: 1.5,
-          stake: 1.1,
-          currency: 'USD',
+          odds: '',
+          stake: '',
+          currency: '',
           won: true,
-          participants: ['Navi', 'Alliance'],
-          pick: 'Execration',
-          winners: 'Execration',
-          discipline: 'Dota 2',
-          website: '1xbetua.com'
+          participants: [],
+          pick: '',
+          winners: '',
+          discipline: '',
+          website: ''
         },
-        schema: {
+        schema: { // TODO DRY
           fields: [
             {
               type: 'input',
