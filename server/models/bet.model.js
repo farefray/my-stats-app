@@ -74,6 +74,29 @@ BetSchema.statics = {
       .exec()
   },
 
+  update (bet) {
+    return this.findOne({ id: bet.id }, function (err, oldBet){
+      if (oldBet) {
+        console.log('FOUND')
+        console.log(oldBet)
+        oldBet.date = bet.date
+        oldBet.type = bet.type
+        oldBet.odds = bet.odds
+        oldBet.stake = bet.stake
+        oldBet.currency = bet.currency
+        oldBet.participants = bet.participants
+        oldBet.pick = bet.pick
+        oldBet.winners = bet.winners
+        oldBet.discipline = bet.discipline
+        oldBet.website = bet.website
+
+        oldBet.save()
+        return '1'
+      }
+
+      return Promise.reject(err)
+    })
+  },
   get (id) {
     console.log('IN')
     console.log(id)

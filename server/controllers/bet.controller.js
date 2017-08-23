@@ -53,13 +53,9 @@ function create (req, res, next) {
 /**
  * Update existing bet
  */
-// TODO
 function update (req, res, next) {
-  const bet = req.bet
-  bet.status = req.body.status
-
-  bet.save()
-    .then(savedBet => res.json(savedBet))
+  Bet.update(req.body)
+    .then(bets => res.json(bets))
     .catch(e => next(e))
 }
 

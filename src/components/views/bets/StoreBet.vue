@@ -2,7 +2,7 @@
     <section class="store-bet">
         <vue-form-generator :schema="schema" :model="model" :options="formOptions"
                             @validated="onValidated"></vue-form-generator>
-        <button class="btn btn-success" v-on:click="storeBet(true)">Store bet</button>
+        <button class="btn btn-success" v-on:click="storeBet(true)">{{buttonMessage}}</button>
         <button class="btn btn-primary" v-on:click="returnBack()">Cancel</button>
     </section>
 </template>
@@ -19,6 +19,7 @@
     props: ['betId'],
     beforeMount () {
       if (this.betId) {
+        this.editing = true
         this.model.id = this.betId
         this.schema.fields[0].disabled = true
         let _this = this
@@ -31,6 +32,18 @@
               if (_this.model[column] !== undefined) {
                 _this.model[column] = bet[column]
               } else {
+                switch (column) {
+                  case 'type': {
+                    _this.model.single = (bet[column][0] && bet[column][0] === 'single')
+                    break
+                  }
+
+                  case 'status': {
+                    console.log(bet[column])
+                    _this.model.won = (bet[column] === 'win')
+                    break
+                  }
+                }
                 console.log(column)
                 console.log(_this.model[column])
               }
@@ -41,6 +54,7 @@
     },
     data () {
       return {
+        editing: false,
         model: {
           id: '',
           date: '',
@@ -188,24 +202,29 @@
     components: {
       'vue-form-generator': VueFormGenerator.component
     },
+    computed: {
+      buttonMessage () {
+        return this.editing ? 'Update bet' : 'Store bet'
+      }
+    },
     methods: {
       returnBack () {
         this.$emit('cancel')
       },
       storeBet (submit) {
         if (submit) {
-          var betdata = this.model
+          let betdata = this.model
           betdata.user = store.state.username
           console.log(betdata)
-          var bet = new UIBet(betdata)
+          let bet = new UIBet(betdata)
           bet.status = betdata.won === true ? 'win' : 'loss'
-          api.request('post', 'bets', bet).then(response => {
+          api.request(this.editing ? 'put' : 'post', 'bets', bet).then(response => {
             window.console.log(response)
             if (response.status === 200 && response.data && response.data._id) {
               this.$notify({
                 title: 'Success action',
                 type: 'success',
-                text: 'Bet was imported',
+                text: 'Bet was ' + this.editing ? 'saved' : 'imported',
                 duration: 3000,
                 speed: 1000
               })

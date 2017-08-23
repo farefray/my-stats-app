@@ -12,15 +12,15 @@ router.route('/')
 /** POST /api/bets - Store new bet */
 .post(validate(paramValidation.storeBet), betCtrl.create)
 
+/** PUT /api/bets - Update bet */
+.put(validate(paramValidation.storeBet), betCtrl.update)
+
 /** DELETE /api/bets - Delete user */
 .delete(betCtrl.remove)
 
 router.route('/:betId')
 /** GET /api/bets/:betId - Get bet */
 .get(betCtrl.get)
-
-/** PUT /api/bets/:betId - Update user */
-.put(validate(paramValidation.updateBet), betCtrl.update)
 
 /** Load bet when API with betId route parameter is hit */
 router.param('betId', betCtrl.load)

@@ -6,7 +6,7 @@ require('dotenv').config();
 // define validation for all the env vars
 const envVarsSchema = Joi.object({
   NODE_ENV: Joi.string()
-    .allow(['development', 'production', 'test', 'provision'])
+    .allow(['development', 'production'])
     .default('development'),
   PORT: Joi.number()
     .default(4040),
