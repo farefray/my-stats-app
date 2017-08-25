@@ -159,6 +159,7 @@ export default {
         })
     },
     switchView (act) {
+      this.editing_bet = null
       console.log('switchView')
       this.action = act !== undefined ? act : LIST
       if (this.action === LIST) {
