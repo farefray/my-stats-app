@@ -12,6 +12,7 @@
   import UIBet from '../../../objects/uibet'
   import api from '../../../api'
   import store from '../../../store'
+  import moment from 'moment'
   const bows = require('bows')
 
   export default {
@@ -28,6 +29,9 @@
           let bet = response.data[0]
           if (bet) {
             console.log(_this.model)
+            console.log(bet.date)
+            bet.date = bet.date * 1000
+            console.log(bet.date)
             Object.keys(bet).forEach(function (column) {
               if (_this.model[column] !== undefined) {
                 _this.model[column] = bet[column]
@@ -57,7 +61,7 @@
         editing: false,
         model: {
           id: '',
-          date: '',
+          date: moment().format("YYYY-MM-DD HH:mm"),
           single: true,
           odds: '',
           stake: '',
@@ -82,15 +86,20 @@
               disabled: false
             },
             {
-              type: 'input',
-              inputType: 'text',
-              label: 'Date',
-              model: 'date',
-              readonly: false,
-              featured: true,
+              type: "dateTimePicker",
+              label: "Date",
+              model: "date",
               required: true,
-              disabled: false,
-              placeholder: 'Date when bet was placed'
+              placeholder: "User's birth of date",
+              validator: VueFormGenerator.validators.date,
+              dateTimePickerOptions: {
+                format: "DD-MM-YYYY HH:mm",
+                showTodayButton: true
+              },
+              onChanged: function (model, newVal, oldVal, field) {
+                console.log(newVal)
+                console.log(field)
+              }
             },
             {
               type: 'switch',
@@ -215,6 +224,7 @@
         if (submit) {
           let betdata = this.model
           betdata.user = store.state.username
+          betdata.date = betdata.date / 1000
           console.log(betdata)
           let bet = new UIBet(betdata)
           bet.status = betdata.won === true ? 'win' : 'loss'
