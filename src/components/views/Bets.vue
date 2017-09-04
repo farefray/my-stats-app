@@ -2,12 +2,15 @@
   <section class="content">
     <div class="row center-block" v-if="action == LIST">
       <h2>My stored bets</h2>
-      <!--"Middle" type, four sub menu, animation introduced animate.css library, white mask, round custom switch button, default menu color configuration-->
-      <circle-menu type="right" :number="2" animate="animated jello" mask='black' circle>
-        <a slot="item_1" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Store single bet" v-on:click="switchView(EDIT)"></a>
-        <a slot="item_2" class="fa fa-plus fa-lg" data-toggle="tooltip" title="Prase multiple bets" v-on:click="switchView(PARSER)"></a>
-      </circle-menu>
-      <div class="col-md-12">
+      <Row>
+        <Col span="8" offset="20">
+          <ButtonGroup>
+            <Button type="primary" v-on:click="switchView(EDIT)">Store single bet</Button>
+            <Button type="primary" v-on:click="switchView(PARSER)">Prase multiple bets</Button>
+          </ButtonGroup>
+        </Col>
+      </Row>
+      <Row>
         <div class="box">
           <div class="box-body">
             <ag-grid-vue style="width: 100%; height: 750px;" class="ag-blue"
@@ -18,10 +21,7 @@
             </ag-grid-vue>
           </div>
         </div>
-      </div>
-      <div class="import-menu-bar row">
-
-      </div>
+      </Row>
     </div>
     <div class="row center-block" v-if="action == EDIT">
       <store-bet v-on:cancel="switchView(LIST)"  v-on:done="switchView()" :betId="editing_bet"></store-bet>
@@ -37,7 +37,6 @@ import '../../../node_modules/ag-grid/dist/styles/ag-grid.css'  // TODO resolve 
 import '../../../node_modules/ag-grid/dist/styles/theme-blue.css' // TODO resolve this dependancies
 import {AgGridVue} from 'ag-grid-vue'
 import {LicenseManager} from 'ag-grid-enterprise/main'
-import CircleMenu from 'vue-circle-menu'
 import StoreBet from './bets/StoreBet'
 import ParseBets from './bets/parser/ParseBets'
 import api from '../../api'
@@ -71,7 +70,6 @@ export default {
   },
   components: {
     'ag-grid-vue': AgGridVue,
-    CircleMenu,
     StoreBet,
     ParseBets
   },
@@ -171,16 +169,6 @@ export default {
 </script>
 
 <style>
-@CircleMenuBtnColor: #324234;
-@CircleMenuItem1Color: #00e676;
-@CircleMenuItem2Color: #ffa000;
 
-#CircleMenu {
-  position:absolute;
-  bottom: 75px;
-  right: 1%;
-  margin:0;
-  padding:5px 3px;
-}
 
 </style>

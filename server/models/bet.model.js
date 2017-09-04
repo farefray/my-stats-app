@@ -68,7 +68,7 @@ BetSchema.statics = {
     }
 
     return this.find()
-      .sort({ date: 'desc' })
+      .sort({ date: 'asc' })
       .skip(+skip)
       .limit(+limit)
       .exec()

@@ -1,19 +1,77 @@
 <template>
     <section class="store-bet">
-        <vue-form-generator :schema="schema" :model="model" :options="formOptions"
-                            @validated="onValidated"></vue-form-generator>
-        <button class="btn btn-success" v-on:click="storeBet(true)">{{buttonMessage}}</button>
-        <button class="btn btn-primary" v-on:click="returnBack()">Cancel</button>
+        <Card style="width:750px">
+        <Form :model="formItem" :label-width="80">
+            <FormItem label="ID">
+                <Input v-model="formItem.id" placeholder="ID"></Input>
+            </FormItem>
+            <FormItem label="Date">
+                <DatePicker v-model="formItem.date" type="datetime" format="yyyy-MM-dd HH:mm" placeholder="选择日期和时间（不含秒）" style="width: 200px"></DatePicker>
+            </FormItem>
+            <FormItem label="Type">
+                <i-switch v-model="formItem.single">
+                    <span slot="single">Single</span>
+                    <span slot="multi">Express</span>
+                </i-switch>
+            </FormItem>
+            <FormItem label="Bet">
+                <Row>
+                    <Col span="8">
+                        <Input v-model="formItem.odds" placeholder="Odds"></Input>
+                    </Col>
+                    <Col span="8">
+                        <Input v-model="formItem.stake" placeholder="Stake"></Input>
+                    </Col>
+                    <Col span="8">
+                        <Input v-model="formItem.currency" placeholder="Currency"></Input>
+                    </Col>
+                </Row>
+            </FormItem>
+            <FormItem label="Bet info">
+                <Row>
+                    <Col>
+                        <Input v-model="formItem.participants" placeholder="Participants"></Input>
+                    </Col>
+                </Row>
+                <Row>
+                    <Input v-model="formItem.pick" placeholder="Pick"></Input>
+                </Row>
+                <Row>
+                    <Input v-model="formItem.winners" placeholder="Winners"></Input>
+                </Row>
+                <Row>
+                    <Col>
+                        <Input v-model="formItem.discipline" placeholder="Discipline"></Input>
+                    </Col>
+                </Row>
+            </FormItem>
+            <FormItem label="Result">
+                <i-switch v-model="formItem.won">
+                    <span slot="true">Won</span>
+                    <span slot="false">Lost</span>
+                </i-switch>
+            </FormItem>
+            <FormItem label="Website">
+                <Input v-model="formItem.website" placeholder="Website"></Input>
+            </FormItem>
+        </Form>
+        <Row>
+            <Col span="8" offset="18">
+                <ButtonGroup>
+                    <Button type="primary" v-on:click="storeBet(true)">{{buttonMessage}}</Button>
+                    <Button v-on:click="returnBack()">Cancel</Button>
+                </ButtonGroup>
+            </Col>
+        </Row>
+        </Card>
     </section>
 </template>
 
 <script>
-  import VueFormGenerator from 'vue-form-generator'
   import UIBet from '../../../objects/uibet'
   import api from '../../../api'
   import store from '../../../store'
   import moment from 'moment'
-  const bows = require('bows')
 
   export default {
     name: 'StoreBet',
@@ -21,35 +79,35 @@
     beforeMount () {
       if (this.betId) {
         this.editing = true
-        this.model.id = this.betId
+        this.formItem.id = this.betId
         this.schema.fields[0].disabled = true
         let _this = this
         api.request('get', 'bets/' + this.betId).then(response => {
           window.console.log(response.data[0])
           let bet = response.data[0]
           if (bet) {
-            console.log(_this.model)
+            console.log(_this.formItem)
             console.log(bet.date)
             bet.date = bet.date * 1000
             console.log(bet.date)
             Object.keys(bet).forEach(function (column) {
-              if (_this.model[column] !== undefined) {
-                _this.model[column] = bet[column]
+              if (_this.formItem[column] !== undefined) {
+                _this.formItem[column] = bet[column]
               } else {
                 switch (column) {
                   case 'type': {
-                    _this.model.single = (bet[column][0] && bet[column][0] === 'single')
+                    _this.formItem.single = (bet[column][0] && bet[column][0] === 'single')
                     break
                   }
 
                   case 'status': {
                     console.log(bet[column])
-                    _this.model.won = (bet[column] === 'win')
+                    _this.formItem.won = (bet[column] === 'win')
                     break
                   }
                 }
                 console.log(column)
-                console.log(_this.model[column])
+                console.log(_this.formItem[column])
               }
             })
           }
@@ -59,7 +117,7 @@
     data () {
       return {
         editing: false,
-        model: {
+        formItem: {
           id: '',
           date: moment().format("YYYY-MM-DD HH:mm"),
           single: true,
@@ -67,149 +125,15 @@
           stake: '',
           currency: '',
           won: true,
-          participants: [],
+          participants: '',
           pick: '',
           winners: '',
           discipline: '',
           website: ''
-        },
-        schema: { // TODO DRY
-          fields: [
-            {
-              type: 'input',
-              inputType: 'text',
-              label: 'ID',
-              model: 'id',
-              readonly: false,
-              featured: true,
-              required: true,
-              disabled: false
-            },
-            {
-              type: "dateTimePicker",
-              label: "Date",
-              model: "date",
-              required: true,
-              placeholder: "User's birth of date",
-              validator: VueFormGenerator.validators.date,
-              dateTimePickerOptions: {
-                format: "DD-MM-YYYY HH:mm",
-                showTodayButton: true
-              },
-              onChanged: function (model, newVal, oldVal, field) {
-                console.log(newVal)
-                console.log(field)
-              }
-            },
-            {
-              type: 'switch',
-              label: 'Type',
-              model: 'single',
-              multi: true,
-              readonly: false,
-              featured: false,
-              disabled: false,
-              default: true,
-              textOn: 'Single',
-              textOff: 'Multi'
-            },
-            {
-              type: 'input',
-              inputType: 'number',
-              label: 'Odds',
-              model: 'odds',
-              validator: VueFormGenerator.validators.number
-            },
-            {
-              type: 'input',
-              inputType: 'number',
-              label: 'Stake',
-              model: 'stake',
-              validator: VueFormGenerator.validators.number
-            },
-            {
-              type: 'input',
-              inputType: 'text',
-              label: 'Currency',
-              model: 'currency',
-              readonly: false,
-              featured: true,
-              required: true,
-              disabled: false,
-              placeholder: 'Bet currency'
-            },
-            {
-              type: 'switch',
-              label: 'Status',
-              model: 'won',
-              multi: true,
-              readonly: false,
-              featured: false,
-              disabled: false,
-              default: true,
-              textOn: 'Won',
-              textOff: 'Lost'
-            },
-            {
-              type: 'input',
-              inputType: 'text',
-              label: 'Discipline',
-              model: 'discipline',
-              readonly: false,
-              featured: false,
-              required: false,
-              disabled: false
-            },
-            {
-              type: 'input',
-              inputType: 'text',
-              label: 'Participants',
-              model: 'participants',
-              readonly: false,
-              featured: false,
-              required: false,
-              disabled: false
-            },
-            {
-              type: 'input',
-              inputType: 'text',
-              label: 'Pick',
-              model: 'pick',
-              readonly: false,
-              featured: false,
-              required: false,
-              disabled: false
-            },
-            {
-              type: 'input',
-              inputType: 'text',
-              label: 'Winners',
-              model: 'winners',
-              readonly: false,
-              featured: false,
-              required: false,
-              disabled: false
-            },
-            {
-              type: 'input',
-              inputType: 'text',
-              label: 'Website',
-              model: 'website',
-              readonly: false,
-              featured: false,
-              required: false,
-              disabled: false
-            }
-          ]
-        },
-        formOptions: {
-          validateAfterLoad: false,
-          validateAfterChanged: true
         }
       }
     },
     components: {
-      'vue-form-generator': VueFormGenerator.component
     },
     computed: {
       buttonMessage () {
@@ -222,7 +146,7 @@
       },
       storeBet (submit) {
         if (submit) {
-          let betdata = this.model
+          let betdata = this.formItem
           betdata.user = store.state.username
           betdata.date = betdata.date / 1000
           console.log(betdata)
@@ -270,504 +194,5 @@
 </script>
 
 <style>
-    pre {
-        overflow: auto;
-    }
 
-    pre .string {
-        color: #885800;
-    }
-
-    pre .number {
-        color: blue;
-    }
-
-    pre .boolean {
-        color: magenta;
-    }
-
-    pre .null {
-        color: red;
-    }
-
-    pre .key {
-        color: green;
-    }
-
-    h1 {
-        text-align: center;
-        font-size: 36px;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        font-weight: 500;
-    }
-
-    fieldset {
-        border: 0;
-    }
-
-    .panel {
-        margin-bottom: 20px;
-        background-color: #fff;
-        border: 1px solid transparent;
-        border-radius: 4px;
-        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-        border-color: #ddd;
-    }
-
-    .panel-heading {
-        color: #333;
-        background-color: #f5f5f5;
-        border-color: #ddd;
-
-        padding: 10px 15px;
-        border-bottom: 1px solid transparent;
-        border-top-left-radius: 3px;
-        border-top-right-radius: 3px;
-    }
-
-    .panel-body {
-        padding: 15px;
-    }
-
-    .field-checklist .wrapper {
-        width: 100%;
-    }
-
-    .form-control {
-        height: 100%;
-    }
-
-    .vue-form-generator * {
-        box-sizing: border-box
-    }
-
-    .vue-form-generator .form-control {
-        display: block;
-        padding: 6px 12px;
-        font-size: 14px;
-        line-height: 1.42857143;
-        color: #555;
-        background-color: #fff;
-        background-image: none;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
-    }
-
-    .vue-form-generator .form-control:not([class*=" col-"]) {
-        width: 100%
-    }
-
-    .vue-form-generator span.help {
-        margin-left: .3em;
-        position: relative
-    }
-
-    .vue-form-generator span.help .icon {
-        display: inline-block;
-        width: 16px;
-        height: 14px;
-        background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAA+UlEQVQ4ja3TS0oDQRAG4C8+lq7ceICICoLGK7iXuNBbeAMJuPVOIm7cqmDiIncIggg+cMZFaqCnZyYKWtB0df31V1VXdfNH6S2wD9CP8xT3KH8T9BiTcE7XBMOfyBcogvCFO9ziLWwFRosyV+QxthNsA9dJkEYlvazsQdi3sBv6Ol6TBLX+HWT3fcQZ3vGM5fBLk+ynAU41m1biCXvhs4OPBDuBpa6GxF0P8YAj3GA1d1qJfdoS4DOIcIm1DK9x8iaWeDF/SP3QU6zRROpjLDFLsFlibx1jJaMkSIGrWKntvItcyTBKzCcybsvc9ZmYz3kz9Ooz/b98A8yvW13B3ch6AAAAAElFTkSuQmCC");
-        background-repeat: no-repeat;
-        background-position: 50%
-    }
-
-    .vue-form-generator span.help .helpText {
-        background-color: #444;
-        bottom: 30px;
-        color: #fff;
-        display: block;
-        left: 0;
-        opacity: 0;
-        padding: 20px;
-        pointer-events: none;
-        position: absolute;
-        text-align: justify;
-        width: 300px;
-        transition: all .25s ease-out;
-        box-shadow: 2px 2px 6px rgba(0, 0, 0, .5);
-        border-radius: 6px
-    }
-
-    .vue-form-generator span.help .helpText a {
-        font-weight: 700;
-        text-decoration: underline
-    }
-
-    .vue-form-generator span.help .helpText:before {
-        bottom: -20px;
-        content: " ";
-        display: block;
-        height: 20px;
-        left: 0;
-        position: absolute;
-        width: 100%
-    }
-
-    .vue-form-generator span.help:hover .helpText {
-        opacity: 1;
-        pointer-events: auto;
-        transform: translateY(0)
-    }
-
-    .vue-form-generator .field-wrap {
-        display: flex
-    }
-
-    .vue-form-generator .field-wrap .buttons {
-        white-space: nowrap;
-        margin-left: 4px
-    }
-
-    .vue-form-generator .field-wrap button, .vue-form-generator .field-wrap input[type=submit] {
-        display: inline-block;
-        padding: 6px 12px;
-        margin: 0;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.42857143;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: middle;
-        touch-action: manipulation;
-        cursor: pointer;
-        user-select: none;
-        color: #333;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 4px
-    }
-
-    .vue-form-generator .field-wrap button:not(:last-child), .vue-form-generator .field-wrap input[type=submit]:not(:last-child) {
-        margin-right: 4px
-    }
-
-    .vue-form-generator .field-wrap button:hover, .vue-form-generator .field-wrap input[type=submit]:hover {
-        color: #333;
-        background-color: #e6e6e6;
-        border-color: #adadad
-    }
-
-    .vue-form-generator .field-wrap button:active, .vue-form-generator .field-wrap input[type=submit]:active {
-        color: #333;
-        background-color: #d4d4d4;
-        border-color: #8c8c8c;
-        outline: 0;
-        box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125)
-    }
-
-    .vue-form-generator .field-wrap button:disabled, .vue-form-generator .field-wrap input[type=submit]:disabled {
-        opacity: .6;
-        cursor: not-allowed
-    }
-
-    .vue-form-generator .hint {
-        font-style: italic;
-        font-size: .8em
-    }
-
-    .vue-form-generator .form-group {
-        display: inline-block;
-        vertical-align: top;
-        width: 100%;
-        margin-bottom: 1rem
-    }
-
-    .vue-form-generator .form-group label {
-        font-weight: 400
-    }
-
-    .vue-form-generator .form-group.featured > label {
-        font-weight: 700
-    }
-
-    .vue-form-generator .form-group.required > label:after {
-        content: "*";
-        font-weight: 400;
-        color: red;
-        padding-left: .2em;
-        font-size: 1em
-    }
-
-    .vue-form-generator .form-group.disabled > label {
-        color: #666;
-        font-style: italic
-    }
-
-    .vue-form-generator .form-group.error input:not([type=checkbox]), .vue-form-generator .form-group.error select, .vue-form-generator .form-group.error textarea {
-        border: 1px solid red;
-        background-color: rgba(255, 0, 0, .15)
-    }
-
-    .vue-form-generator .form-group.error .errors {
-        color: red;
-        font-size: .8em
-    }
-
-    .vue-form-generator .form-group.error .errors span {
-        display: block;
-        background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAiklEQVR4Xt2TMQoCQQxF3xdhu72MpZU3GU/meBFLOztPYrVWsQmEWSaMsIXgK8P8RyYkMjO2sAN+K9gTIAmDAlzoUzE7p4IFytvDCQWJKSStYB2efcAvqZFM0BcstMx5naSDYFzfLhh/4SmRM+6Agw/xIX0tKEDFufeDNRUc4XqLRz3qabVIf3BMHwl6Ktexn3nmAAAAAElFTkSuQmCC");
-        background-repeat: no-repeat;
-        padding-left: 17px;
-        padding-top: 0;
-        margin-top: .2em;
-        font-weight: 600
-    }
-
-    .vue-form-generator .field-checkbox input {
-        margin-left: 12px
-    }
-
-    .vue-form-generator .field-checklist .dropList, .vue-form-generator .field-checklist .listbox {
-        height: auto;
-        max-height: 150px;
-        overflow: auto
-    }
-
-    .vue-form-generator .field-checklist .dropList .list-row label, .vue-form-generator .field-checklist .listbox .list-row label {
-        font-weight: 400
-    }
-
-    .vue-form-generator .field-checklist .dropList .list-row input, .vue-form-generator .field-checklist .listbox .list-row input {
-        margin-right: .3em
-    }
-
-    .vue-form-generator .field-checklist .combobox {
-        height: auto;
-        overflow: hidden
-    }
-
-    .vue-form-generator .field-checklist .combobox .mainRow {
-        cursor: pointer;
-        position: relative;
-        padding-right: 10px
-    }
-
-    .vue-form-generator .field-checklist .combobox .mainRow .arrow {
-        position: absolute;
-        right: -9px;
-        top: 3px;
-        width: 16px;
-        height: 16px;
-        transform: rotate(0deg);
-        transition: transform .5s;
-        background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAGdJREFUOI3tzjsOwjAURNGDUqSgTxU5K2AVrJtswjUsgHSR0qdxAZZFPrS+3ZvRzBsqf9MUtBtazJk+oMe0VTriiZCFX8nbpENMgfARjsn74vKj5IFruhfc8d6zIF9S/Hyk5HS4spMVeFcOjszaOwMAAAAASUVORK5CYII=");
-        background-repeat: no-repeat
-    }
-
-    .vue-form-generator .field-checklist .combobox .mainRow.expanded .arrow {
-        transform: rotate(-180deg)
-    }
-
-    .vue-form-generator .field-checklist .combobox .dropList {
-        transition: height .5s
-    }
-
-    .vue-form-generator .field-input .wrapper, .vue-form-generator .field-input input[type=radio] {
-        width: 100%
-    }
-
-    .vue-form-generator .field-input input[type=color] {
-        width: 60px
-    }
-
-    .vue-form-generator .field-input input[type=range] {
-        padding: 0
-    }
-
-    .vue-form-generator .field-input .helper {
-        margin: auto .5em
-    }
-
-    .vue-form-generator .field-label span {
-        display: block;
-        width: 100%;
-        margin-left: 12px
-    }
-
-    .vue-form-generator .field-radios .radio-list label {
-        display: block
-    }
-
-    .vue-form-generator .field-radios .radio-list label input[type=radio] {
-        margin-right: 5px
-    }
-
-    .vue-form-generator .field-submit input {
-        color: #fff !important;
-        background-color: #337ab7 !important;
-        border-color: #2e6da4 !important
-    }
-
-    .vue-form-generator .field-image .wrapper {
-        width: 100%
-    }
-
-    .vue-form-generator .field-image .preview {
-        position: relative;
-        margin-top: 5px;
-        height: 100px;
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-position: 50%;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075)
-    }
-
-    .vue-form-generator .field-image .preview .remove {
-        background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXUlEQVR42u2SwQoAIAhD88vVLy8KBlaS0i1oJwP3piGVg0Skmpq8HjqZrWl9uwCbGAmwKYGZs/6iqgMyAdJuM8W2QmYKpLt/0AG9ASCv/oAnANd3AEjmAlFT1BypAV+PnRH5YehvAAAAAElFTkSuQmCC");
-        width: 16px;
-        height: 16px;
-        font-size: 1.2em;
-        position: absolute;
-        right: .2em;
-        bottom: .2em;
-        opacity: .7
-    }
-
-    .vue-form-generator .field-image .preview .remove:hover {
-        opacity: 1;
-        cursor: pointer
-    }
-
-    .vue-form-generator .field-noUiSlider .field-wrap {
-        display: block
-    }
-
-    .vue-form-generator .field-noUiSlider .contain-pips {
-        margin-bottom: 30px
-    }
-
-    .vue-form-generator .field-noUiSlider .contain-tooltip {
-        margin-top: 30px
-    }
-
-    .vue-form-generator .field-noUiSlider .noUi-vertical {
-        height: 200px;
-        margin: 10px 0
-    }
-
-    .vue-form-generator .field-rangeSlider .irs {
-        width: 100%
-    }
-
-    .vue-form-generator .field-selectEx .bootstrap-select .dropdown-menu li.selected .text {
-        font-weight: 700
-    }
-
-    .vue-form-generator .field-staticMap img {
-        display: block;
-        width: auto;
-        max-width: 100%
-    }
-
-    .vue-form-generator .field-switch .field-wrap label {
-        position: relative;
-        display: block;
-        vertical-align: top;
-        width: 120px;
-        height: 30px;
-        padding: 0;
-        margin: 0 10px 10px 0;
-        border-radius: 15px;
-        box-shadow: inset 0 -1px #fff, inset 0 1px 1px rgba(0, 0, 0, .05);
-        cursor: pointer
-    }
-
-    .vue-form-generator .field-switch input {
-        position: absolute;
-        top: 0;
-        left: 0;
-        opacity: 0
-    }
-
-    .vue-form-generator .field-switch .label {
-        position: relative;
-        display: block;
-        height: inherit;
-        font-size: 10px;
-        text-transform: uppercase;
-        background: #eceeef;
-        border-radius: inherit;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, .12), inset 0 0 2px rgba(0, 0, 0, .15)
-    }
-
-    .vue-form-generator .field-switch .label:after, .vue-form-generator .field-switch .label:before {
-        position: absolute;
-        top: 50%;
-        margin-top: -.5em;
-        line-height: 1;
-        -webkit-transition: inherit;
-        -moz-transition: inherit;
-        -o-transition: inherit;
-        transition: inherit
-    }
-
-    .vue-form-generator .field-switch .label:before {
-        content: attr(data-off);
-        right: 11px;
-        color: #aaa;
-        text-shadow: 0 1px hsla(0, 0%, 100%, .5)
-    }
-
-    .vue-form-generator .field-switch .label:after {
-        content: attr(data-on);
-        left: 11px;
-        color: #fff;
-        text-shadow: 0 1px rgba(0, 0, 0, .2);
-        opacity: 0
-    }
-
-    .vue-form-generator .field-switch input:checked ~ .label {
-        background: #e1b42b;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, .15), inset 0 0 3px rgba(0, 0, 0, .2)
-    }
-
-    .vue-form-generator .field-switch input:checked ~ .label:before {
-        opacity: 0
-    }
-
-    .vue-form-generator .field-switch input:checked ~ .label:after {
-        opacity: 1
-    }
-
-    .vue-form-generator .field-switch .handle {
-        position: absolute;
-        top: 1px;
-        left: 1px;
-        width: 28px;
-        height: 28px;
-        background: linear-gradient(180deg, #fff 40%, #f0f0f0);
-        background-image: -webkit-linear-gradient(top, #fff 40%, #f0f0f0);
-        border-radius: 100%;
-        box-shadow: 1px 1px 5px rgba(0, 0, 0, .2)
-    }
-
-    .vue-form-generator .field-switch .handle:before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin: -6px 0 0 -6px;
-        width: 12px;
-        height: 12px;
-        background: linear-gradient(180deg, #eee, #fff);
-        background-image: -webkit-linear-gradient(top, #eee, #fff);
-        border-radius: 6px;
-        box-shadow: inset 0 1px rgba(0, 0, 0, .02)
-    }
-
-    .vue-form-generator .field-switch input:checked ~ .handle {
-        left: 91px;
-        left: calc(100% - ($field-switch-height - 1px));
-        box-shadow: -1px 1px 5px rgba(0, 0, 0, .2)
-    }
-
-    .vue-form-generator .field-switch .handle, .vue-form-generator .field-switch .label {
-        transition: all .3s ease
-    }
 </style>

@@ -6,6 +6,10 @@ import { sync } from 'vuex-router-sync'
 import routes from './routes'
 import store from './store'
 
+import iView from 'iview'
+import locale from 'iview/dist/locale/en-US'
+import './iviewtheme/index.less'
+
 // Import Helpers for filters
 import { domain, count, prettyDate, pluralize } from './filters'
 
@@ -23,6 +27,7 @@ Vue.filter('pluralize', pluralize)
 
 Vue.use(VueRouter)
 Vue.use(Notifications)
+Vue.use(iView, { locale })
 
 // Routing logic
 var router = new VueRouter({
