@@ -110,20 +110,25 @@
                 </li>
               </ul>
             </li>
-
-            <!-- User Account Menu -->
-            <li class="dropdown user user-menu">
-              <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
-                <!-- The user image in the navbar-->
-                <img v-bind:src="avatar" class="user-image" alt="User Image">
-                <!-- hidden-xs hides the username on small devices so only the image appears. -->
-                <span class="hidden-xs">{{ username }}</span>
+            <li style="height: 100%;">
+              <a href="#" style="padding-bottom:0;" class="no-hover">
+              <Dropdown placement="bottom-end">
+                <Avatar shape="square" icon="person" v-bind:src="avatar" size="small">
+                  <span class="hidden-xs">{{ username }}</span>
+                </Avatar>
+                <Icon type="arrow-down-b"></Icon>
+                <DropdownMenu slot="list">
+                  <DropdownItem>
+                    <a href="" v-on:click.stop.prevent="logout()"><i class="fa fa-circle-o text-red"></i> Logout</a>
+                  </DropdownItem>
+                  <DropdownItem>
+                    <router-link to="/settings">
+                      <span class="page"><i class="fa fa-circle-o text-blue"></i> Settings</span>
+                    </router-link>
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
               </a>
-              <ul class="dropdown-menu">
-                <li class="footer">
-                  <a href="" v-on:click.stop.prevent="logout()">Logout</a>
-                </li>
-              </ul>
             </li>
           </ul>
         </div>
@@ -274,4 +279,8 @@ hr.visible-xs-block {
   height: 1px;
   border-color: transparent;
 }
+
+  a.no-hover:hover {
+    background: rgba(0,0,0,0.0) !important;
+  }
 </style>

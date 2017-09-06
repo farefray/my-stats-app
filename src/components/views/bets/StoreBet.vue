@@ -9,9 +9,9 @@
                 <DatePicker v-model="formItem.date" type="datetime" format="yyyy-MM-dd HH:mm" placeholder="选择日期和时间（不含秒）" style="width: 200px"></DatePicker>
             </FormItem>
             <FormItem label="Type">
-                <i-switch v-model="formItem.single">
-                    <span slot="single">Single</span>
-                    <span slot="multi">Express</span>
+                <i-switch v-model="formItem.single" size="large">
+                    <span slot="open">Single</span>
+                    <span slot="close">Express</span>
                 </i-switch>
             </FormItem>
             <FormItem label="Bet">
@@ -46,9 +46,9 @@
                 </Row>
             </FormItem>
             <FormItem label="Result">
-                <i-switch v-model="formItem.won">
-                    <span slot="true">Won</span>
-                    <span slot="false">Lost</span>
+                <i-switch v-model="formItem.won" size="large">
+                    <span slot="open">Won</span>
+                    <span slot="close">Lost</span>
                 </i-switch>
             </FormItem>
             <FormItem label="Website">
@@ -145,6 +145,8 @@
         this.$emit('cancel')
       },
       storeBet (submit) {
+        console.log(this.formItem)
+        return
         if (submit) {
           let betdata = this.formItem
           betdata.user = store.state.username
@@ -194,5 +196,11 @@
 </script>
 
 <style>
+    .ivu-switch-large.ivu-switch-checked:after {
+        left: 47px;
+    }
 
+    .ivu-switch-large {
+        width: 75px;
+    }
 </style>
